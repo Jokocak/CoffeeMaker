@@ -13,9 +13,9 @@
 In this project, our team collaborated to develop a comprehensive CoffeeMaker application with an inventory management system as part of our coursework. We utilized various technologies and frameworks to ensure the efficiency and functionality of the system. Here's an overview of the technologies we employed:
 
 ### Backend
-Java: We chose Java as the backend language due to its robustness, versatility, and extensive ecosystem of libraries and tools. Java provided the foundation for implementing the core functionalities of our inventory management system.
-Spring Framework: For web application development, we leveraged the Spring Framework. Spring offered a comprehensive suite of tools and libraries for building enterprise-grade Java applications, including features such as dependency injection, aspect-oriented programming, and MVC architecture, which facilitated the development of our backend components.
-MySQL: To persistently store data such as inventory items, ingredients, and recipes, we utilized MySQL, a widely-used relational database management system. MySQL allowed us to efficiently manage and query large datasets while ensuring data integrity.
+* Java: We chose Java as the backend language due to its robustness, versatility, and extensive ecosystem of libraries and tools. Java provided the foundation for implementing the core functionalities of our inventory management system.
+* Spring Framework: For web application development, we leveraged the Spring Framework. Spring offered a comprehensive suite of tools and libraries for building enterprise-grade Java applications, including features such as dependency injection, aspect-oriented programming, and MVC architecture, which facilitated the development of our backend components.
+* MySQL: To persistently store data such as inventory items, ingredients, and recipes, we utilized MySQL, a widely-used relational database management system. MySQL allowed us to efficiently manage and query large datasets while ensuring data integrity.
 ### Frontend
 AngularJS: For developing the frontend of our system, we opted for the AngularJS framework. AngularJS facilitated the creation of dynamic and interactive user interfaces, enabling seamless navigation and interaction with the inventory management system.
 ### Communication
