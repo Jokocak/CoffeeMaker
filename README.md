@@ -10,7 +10,7 @@
 ![Branches](.github/badges/branches.svg)
 
 ## Description of Project and Technologies Used
-In this project, our team collaborated to develop a comprehensive inventory management system as part of our coursework. We utilized various technologies and frameworks to ensure the efficiency and functionality of the system. Here's an overview of the technologies we employed:
+In this project, our team collaborated to develop a comprehensive CoffeeMaker application with an inventory management system as part of our coursework. We utilized various technologies and frameworks to ensure the efficiency and functionality of the system. Here's an overview of the technologies we employed:
 
 ### Backend
 Java: We chose Java as the backend language due to its robustness, versatility, and extensive ecosystem of libraries and tools. Java provided the foundation for implementing the core functionalities of our inventory management system.
