@@ -17,9 +17,10 @@ In this project, our team collaborated to develop a comprehensive CoffeeMaker ap
 * Spring Framework: For web application development, we leveraged the Spring Framework. Spring offered a comprehensive suite of tools and libraries for building enterprise-grade Java applications, including features such as dependency injection, aspect-oriented programming, and MVC architecture, which facilitated the development of our backend components.
 * MySQL: To persistently store data such as inventory items, ingredients, and recipes, we utilized MySQL, a widely-used relational database management system. MySQL allowed us to efficiently manage and query large datasets while ensuring data integrity.
 ### Frontend
-AngularJS: For developing the frontend of our system, we opted for the AngularJS framework. AngularJS facilitated the creation of dynamic and interactive user interfaces, enabling seamless navigation and interaction with the inventory management system.
+* AngularJS: For developing the frontend of our system, we opted for the AngularJS framework. AngularJS facilitated the creation of dynamic and interactive user interfaces, enabling seamless navigation and interaction with the inventory management system.
 ### Communication
-REST APIs: To establish communication between the backend and frontend components of our system, we implemented RESTful APIs. These APIs served as the endpoints through which data could be exchanged between the client-side and server-side components, enabling smooth and efficient data transmission and manipulation.
+* REST APIs: To establish communication between the backend and frontend components of our system, we implemented RESTful APIs. These APIs served as the endpoints through which data could be exchanged between the client-side and server-side components, enabling smooth and efficient data transmission and manipulation.
+
 By leveraging these technologies and frameworks, including the Spring Framework for web application development, we were able to collaboratively develop a robust inventory management system that streamlined the tracking and management of inventory, ingredients, and recipes.
 
 ## API Endpoint
