@@ -9,6 +9,9 @@
 
 ![Branches](.github/badges/branches.svg)
 
+## Description of Project and Technologies Used
+TODO
+
 ## API Endpoint
 ### localhost8080:/api/v1/ingredient
 This endpoint provides a list of ingredients available. Each ingredient entry includes its unique identifier (id), the quantity (amount), and the name of the ingredient (name).
