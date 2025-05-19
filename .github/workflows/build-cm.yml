@@ -8,7 +8,7 @@ on:
       - main
 jobs:
   Build-CoffeeMaker:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Publish reminder
         uses: actions/github-script@v4.0.2
