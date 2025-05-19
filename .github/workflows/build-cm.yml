@@ -44,7 +44,7 @@ jobs:
         run: cp CoffeeMaker/src/main/resources/application.yml.template CoffeeMaker/src/main/resources/application.yml
         
       - name: Edit config file with DB credentials (do not change this!)
-        run: sed -i 's/localhost/docker/g' CoffeeMaker/src/main/resources/application.yml && sed -i 's/password\:/password\:\ ${{ secrets.TEST_DB_PW }}/g' CoffeeMaker/src/main/resources/application.yml
+        run: sed -i 's/password\:/password\:\ ${{ secrets.TEST_DB_PW }}/g' CoffeeMaker/src/main/resources/application.yml
           
       - name: Clean up Docker containers
         run: (docker stop $(docker ps -a -q) || true) && (docker rm $(docker ps -a -q) || true)
@@ -56,7 +56,7 @@ jobs:
         run: sleep 15s      
          
       - name: Check to make sure DB is active
-        run: mysql -uroot -h docker -p${{ secrets.TEST_DB_PW }} -e 'SELECT version()'
+        run: mysql -uroot -h 127.0.0.1 -p${{ secrets.TEST_DB_PW }} -e 'SELECT version()'
       
       - name: Build CoffeeMaker with Maven
         run: cd CoffeeMaker && mvn --batch-mode --update-snapshots clean test checkstyle:checkstyle
