@@ -53,6 +53,3 @@ target/*
 
 # Cucumber testing
 \\CoffeeMaker_JUnit_Cucumber\\cucumberTest.xml
-
-# Hibernate configuration with password
-src/main/resources/application.yml
