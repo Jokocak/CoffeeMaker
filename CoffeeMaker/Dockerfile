@@ -22,4 +22,4 @@ COPY --from=build /workspace/target/*.jar app.jar
 EXPOSE 8080
 
 # Start the Spring Boot application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
