@@ -16,7 +16,7 @@ FROM openjdk:11-jdk-slim
 WORKDIR /app
 
 # Copy the jar file produced by Maven into the container
-COPY target/CoffeeMaker-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /workspace/target/*.jar app.jar
 
 # Expose port 8080 (or the port your app uses)
 EXPOSE 8080
