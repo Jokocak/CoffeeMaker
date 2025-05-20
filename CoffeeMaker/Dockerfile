@@ -1,3 +1,14 @@
+# -- Build Steps --
+FROM maven:3.9.9-eclipse-temurin-11 AS build
+
+WORKDIR /workspace
+
+COPY . .
+
+RUN mvn clean package -DskipTests
+
+# -- Production Steps --
+
 # Use OpenJDK 11 as the base image. You can use 'slim' for smaller size or 'alpine' for even smaller (and lighter).
 FROM openjdk:11-jdk-slim
 
