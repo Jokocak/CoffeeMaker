@@ -254,11 +254,6 @@ public class MappingController {
         return "orderstatus";
     }
 
-    @GetMapping ( { "/menu", "/menu.html" } )
-    public String menuPage ( final Model model ) {
-        return "menu";
-    }
-
     @GetMapping ( { "/orderhistory", "/orderhistory.html" } )
     public String orderHistory ( final Model model ) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

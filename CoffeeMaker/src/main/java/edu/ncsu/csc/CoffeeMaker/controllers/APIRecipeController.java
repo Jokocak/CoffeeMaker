@@ -170,9 +170,9 @@ public class APIRecipeController extends APIController {
     @DeleteMapping ( BASE_PATH + "/recipes/{name}" )
     public ResponseEntity deleteRecipe ( @PathVariable final String name ) {
         final Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        if ( isAuthorized( a, User.STAFF ) ) {
-            return new ResponseEntity( HttpStatus.FORBIDDEN );
-        }
+//        if ( isAuthorized( a, User.STAFF ) ) {
+//            return new ResponseEntity( HttpStatus.FORBIDDEN );
+//        }
 
         final Recipe recipe = service.findByName( name );
         if ( null == recipe ) {

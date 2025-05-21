@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests()
                 .antMatchers( "/login", "/guesthome.html", "/register.html", "/order.html", "/orders/*", "/orders/",
-                        "/api/v1/users/customer", "/menu.html", "/api/v1/recipes", "/api/v1/orders", "/orderstatus*",
+                        "/api/v1/users/customer", "/api/v1/recipes", "/api/v1/orders", "/orderstatus*",
                         "/api/v1/orders/*", "/privacypolicy.html" )
                 .permitAll() // Allow
                 // access
