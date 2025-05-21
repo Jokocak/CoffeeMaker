@@ -11,7 +11,7 @@
             $scope.user = {username: '', password: ''};
             $scope.usernameInvalid = false;
             $scope.usernameError = false;
-            $scope.loginError = $window.location.search.includes('error=true');
+            $scope.loginError = $window.location.search.includes('error');
             $scope.logoutMessage = $window.location.search.includes('logout=true');
 
             $scope.checkUsername = function() {
@@ -22,18 +22,17 @@
                     "Username cannot contain the '*' character." :
                     restricted.test($scope.user.username) ? "Username contains restricted word." : "";
             };
-
+            
             $scope.submitForm = function() {
                 if (!$scope.usernameInvalid && $scope.loginForm.$valid) {
                     $http.post('/login', $scope.user).then(function(response) {
-                        // Assume the server redirects on successful login
-                        $window.location.href = response.data.redirectUrl;
+                        // success: usually redirect, or whatever you want
+                        window.location.href = response.data.redirectUrl;
                     }, function(error) {
-                        // Handle error by redirecting to the login page with error parameters
-                        $window.location.href = '/login?error=true';
+                        // Show the error message (div in HTML)
+                        $scope.loginError = true;
                     });
                 } else {
-                    // Prevent submission or show an error
                     $scope.loginError = true;
                 }
             };
@@ -105,49 +104,60 @@
   .register-link a:hover {
     text-decoration: underline;
   }
-
+  
   .error {
-    color: red;
-    font-size: 0.9em;
-    margin-top: 20px; 
-  }
+    color: #ff3d3d;
+    background: rgba(255,0,0,0.08);
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 16px auto 28px auto;
+    width: 87%;
+    padding: 10px 0;
+    text-align: center;
+    box-shadow: 0 1px 6px rgba(255, 0, 0, 0.06);
+    letter-spacing: 0.03em;
+    transition: opacity 0.3s;
+    display: block;
+}
 </style>
 
 </head>
 <body ng-app="loginApp" ng-controller="LoginController">
-    <h1>Log In</h1>
-    <div ng-show="loginError" class="error">
-        Invalid username and password.
+	<div class="wrapper">
+	    <h1>Log In</h1>
+	    <div ng-show="loginError" class="error">
+	        Invalid username and password.
+	    </div>
+	    <div ng-show="logoutMessage">
+	        You have been logged out.
+	    </div>
+		<form th:action="@{/login}" method="post">
+	        <div>
+	            <input type="text" name="username" ng-model="user.username" placeholder="Username" ng-change="checkUsername()" required/>
+	            <span ng-show="usernameError" class="error">{{usernameErrorMessage}}</span>
+	        </div>
+	        <div>
+	            <input type="password" name="password" placeholder="Password"/>
+	        </div>
+	        <input type="submit" value="Log in" />
+	    </form>
+	
+	    <!-- Direct to create account page or Guest Page -->
+	    <div class="register-link">
+	        <p>
+	            Don't have an account? <br>
+	            <a href="register.html">Register</a><br>OR<br>
+	            <a href="guesthome.html">Continue as Guest</a>
+	        </p>
+	    </div>
+	
+	    <!-- Privacy Policy Link -->
+	    <div class="privacy-policy-link">
+	        <p>
+	            <a href="privacypolicy.html">Privacy Policy</a>
+	        </p>
+	    </div>
     </div>
-    <div ng-show="logoutMessage">
-        You have been logged out.
-    </div>
-	<form th:action="@{/login}" method="post">
-        <div>
-            <input type="text" name="username" ng-model="user.username" placeholder="Username" ng-change="checkUsername()" required/>
-            <span ng-show="usernameError" class="error">{{usernameErrorMessage}}</span>
-        </div>
-        <div>
-            <input type="password" name="password" placeholder="Password"/>
-        </div>
-        <input type="submit" value="Log in" />
-    </form>
-
-    <!-- Direct to create account page or Guest Page -->
-    <div class="register-link">
-        <p>
-            Don't have an account? <br>
-            <a href="register.html">Register</a><br>OR<br>
-            <a href="guesthome.html">Continue as Guest</a>
-        </p>
-    </div>
-
-    <!-- Privacy Policy Link -->
-    <div class="privacy-policy-link">
-        <p>
-            <a href="privacypolicy.html">Privacy Policy</a>
-        </p>
-    </div>
-
 </body>
 </html>

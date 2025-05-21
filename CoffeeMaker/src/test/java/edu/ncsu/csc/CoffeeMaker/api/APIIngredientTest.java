@@ -62,11 +62,10 @@ public class APIIngredientTest {
      * Sets up the tests.
      */
     @BeforeEach
-    @Transactional
     public void setup () {
         mvc = MockMvcBuilders.webAppContextSetup( context ).build();
-        // recipeService.deleteAll();
-        // inventoryService.deleteAll();
+        recipeService.deleteAll();
+        inventoryService.deleteAll();
         ingredientService.deleteAll();
     }
 
@@ -74,7 +73,6 @@ public class APIIngredientTest {
     @Transactional
     @WithMockUser ( authorities = User.STAFF )
     public void testIngredientAPIPOST () throws Exception {
-        ingredientService.deleteAll();
         System.out.println( ingredientService.findAll() );
 
         final Ingredient ingr = new Ingredient( "Espresso", 10 );
@@ -117,13 +115,12 @@ public class APIIngredientTest {
 
         mvc.perform( delete( "/api/v1/ingredients/TestIngredient" ) ).andExpect( status().isOk() );
 
-        // // Check the count after the DELETE request
-        // Assertions.assertEquals(1, (int) ingredientService.count());
-        //
-        // // Perform another GET request to check if the ingredient is not
-        // found
-        // mvc.perform(get("/api/v1/ingredients/TestIngredient"))
-        // .andExpect(status().isNotFound());
+         // Check the count after the DELETE request
+         Assertions.assertEquals(0, (int) ingredientService.count());
+        
+         // Perform another GET request to check if the ingredient is not
+         // found
+         mvc.perform(get("/api/v1/ingredients/TestIngredient")).andExpect(status().isNotFound());
 
         mvc.perform( delete( "/api/v1/ingredients/noingredient" ) ).andExpect( status().isNotFound() );
     }

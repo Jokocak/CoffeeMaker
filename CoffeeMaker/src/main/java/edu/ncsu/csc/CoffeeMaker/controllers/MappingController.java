@@ -278,5 +278,10 @@ public class MappingController {
 
         return "accountinfo";
     }
+    
+    @GetMapping ( { "/privacypolicy", "/privacypolicy.html" } )
+    public String privacypolicy ( final Model model ) {
+        return "privacypolicy";
+    }
 
 }
