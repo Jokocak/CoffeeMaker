@@ -282,6 +282,8 @@ class UserTest {
     @Test
     @Transactional
     void testDatabaseSave () {
+    	userService.deleteAll();
+    	
         final User u = new User( "alec", "cookies", User.CUSTOMER );
         userService.save( u );
 
@@ -299,6 +301,8 @@ class UserTest {
     @Test
     @Transactional
     void testDatabaseSaveInvalid () {
+    	userService.deleteAll();
+    	
         final User u = new User( "alec", "cookies", User.CUSTOMER );
         userService.save( u );
         u.setPassword( "apples" );

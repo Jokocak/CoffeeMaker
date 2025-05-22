@@ -1,157 +1,251 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!-- Title of the page (this is displayed on the tab that the html page is open in -->
-<title>Add Recipe</title>
-
-
-<!-- Style conventions, we want everything centered -->
-<style>
-  h1 {text-align: center;}
-  h2 {text-align: center;}
-  p {text-align: center;}
-  div {text-align: center;}
-  .center {
-	  margin-left: auto;
-      margin-right: auto;
-  }
-  button {text-align: center;}
-
-  .link-style {
-      color: #007bff; 
-      text-decoration: underline; 
-      cursor: pointer; 
-  }
-  .red-text {
-        color: red;
-  }
-
-  .green-text {
-    color: green;
-  }
-</style>
-
-<!-- Body of the page -->
-<body ng-app="addRecipe" ng-controller="controller">
-<!--import angularJS-->
-  <script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
-  <script>
-    /* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
-			  /*<![CDATA[*/ 
-			  var app = angular.module('addRecipe', []);
-			  app.controller('controller', function($scope, $http, $q) {
-			    //initialize the list of recipes
-          $scope.recipe = [];
-          //adds a blank ingredient to the end of the list
-          $scope.addIngredient = function() {
-            $scope.recipe.push({name: "", units: 0});
-          }
-          //removes the parameter from the recipe list of ingredients
-          $scope.removeIngredient = function(item) {
-            var idx = $scope.recipe.indexOf(item);
-            if(idx !== -1) {
-              $scope.recipe.splice(idx, 1);
-            }
-          }
-          //submits the list to the server
-          $scope.submit = function() {
-            const recipe = {
-              name: $scope.recipeName,
-              price: $scope.recipePrice,
-              ingredients: $scope.recipe
-            };
-            recipe.name = $scope.recipeName;
-            recipe.price = $scope.recipePrice;
-            recipe.ingredients = $scope.recipe;
-            $http.post("api/v1/recipes/", recipe).then(
-              function(success) {
-                console.log("success!");
-                $scope.submitStatus = "Success! Recipe has been added.";
-                $scope.submitStatusClass = "success";
-              }, function(rejection) {
-                console.log("failure!");
-                $scope.submitStatus = "Failure! Unable to add recipe." + " " + rejection.data.message;
-                $scope.submitStatusClass = "error";
-              }
-              );
-            
-          }
-          
-	      //fetch all ingredient names in inventory
-          $http.get("/api/v1/inventory").then(function(response) {
-            $scope.availablelIngredients = [];
-            for(let i = 0; i < response.data.ingredientList.length; i++) {
-              $scope.availablelIngredients[i] = response.data.ingredientList[i].name;
-            }
-          });
-          
-          
-          
-			  });
-			  
-  /* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
-  /*]]>*/
-  </script>
-	<!-- Header for the page, telling the user what the purpose of the page is (adding an ingredient here -->
-	<h1>Add Recipe</h1>
+	<head>
+	    <title>Add Recipe</title>
+	    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+	    <style>
+	        html, body {
+	            height: 100%;
+	            margin: 0;
+	        }
+	        
+	        body {
+	            font-family: 'Arial', sans-serif;
+	            background-color: #FFF0E5;
+	            display: flex;
+	            justify-content: center;
+	            align-items: center;
+	            flex-direction: column;
+	            text-align: center;
+	            padding: 20px;
+	        }
 	
-	<!-- Input boxes for the name and price of recipe to be added -->
-	<div>
-		<form>
-		  <label for="recipeName">Name:</label> <!-- Name box -->
-		  <input type="text" id="recipeName" name="recipeName" ng-model="recipeName" required="true"> <!-- Name box -->
-		  <label for="price">Price:</label> <!-- Price box -->
-		  <input type="text" id="price" name="price" ng-model="recipePrice" required="true"> <br> <br> <!-- Price box -->
-		  <!-- Multiple line breaks for spacing -->
-		</form>
-	</div>
+	        h1, h2 {
+	            color: #A52A2A;
+	            margin-bottom: 20px;
+	        }
 	
-	<!-- Header for the ingredients table -->
-	<h2>Ingredients</h2>
+	        .content-wrapper {
+	            background-color: white;
+	            border-radius: 20px;
+	            padding: 40px;
+	            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	            margin-bottom: 20px;
+	            width: 80%;
+	            max-width: 800px;
+	        }
 	
+	        .form-group {
+	            margin-bottom: 20px;
+	        }
 	
-	<!-- Table of user inputs -->
-	<table class = "center">
-	<!-- Ingredients row in table, stylistically used as a header -->
-	  <tr>
-	  	<th>Ingredients</th>
-	  	<th>Units</th>
-	  </tr>
-	  
-	  <!-- Drop down menu for ingredients, and input box for units holding dummy values right now -->
-	  <tr ng-repeat="item in recipe">
-	    <td>
-	    	<!-- Ingredients drop down -->
-	  		<select ng-model="item.name" ng-options="name for name in availablelIngredients" required="true">
-		       	<option value="">Select Ingredient</option>
-	       	</select>
-	    </td>
-	    <td>
-	       	<form>
-				<label for="units"></label> <!-- units box -->
-		  		<input type="number" id="units" name="units" ng-model="item.units" min="0"> <!-- units box -->
-	 		 </form>
-		 </td>	 
+	        input[type="text"],
+	        input[type="number"],
+	        select {
+	            width: 200px;
+	            padding: 8px;
+	            margin: 5px;
+	            border: 1px solid #ddd;
+	            border-radius: 4px;
+	            font-size: 14px;
+	        }
+	
+	        table {
+	            width: 100%;
+	            border-collapse: collapse;
+	            margin: 20px 0;
+	            background-color: white;
+	        }
+	
+	        th, td {
+	            padding: 12px;
+	            text-align: left;
+	            border-bottom: 1px solid #ddd;
+	        }
+	
+	        th {
+	            background-color: #A52A2A;
+	            color: white;
+	            font-weight: bold;
+	        }
+	
+	        .link-style {
+	            color: #2196F3;
+	            text-decoration: none;
+	            cursor: pointer;
+	            font-weight: bold;
+	        }
+	
+	        .link-style:hover {
+	            text-decoration: underline;
+	        }
+	
+	        button {
+	            background-color: #A52A2A;
+	            color: white;
+	            border: none;
+	            padding: 10px 20px;
+	            margin: 10px;
+	            border-radius: 20px;
+	            cursor: pointer;
+	            transition: background-color 0.3s;
+	        }
+	
+	        button:hover {
+	            background-color: #8B4513;
+	        }
+	
+	        .red-text {
+	            color: #ff3d3d;
+	            background: rgba(255,0,0,0.08);
+	            border-radius: 8px;
+	            padding: 10px;
+	            margin: 10px 0;
+	            display: block;
+	        }
+	
+	        .green-text {
+	            color: #4CAF50;
+	            background: rgba(76,175,80,0.08);
+	            border-radius: 8px;
+	            padding: 10px;
+	            margin: 10px 0;
+	            display: block;
+	        }
+	
+	        .delete-link {
+	            color: #ff3d3d;
+	            cursor: pointer;
+	        }
+	
+	        .delete-link:hover {
+	            text-decoration: underline;
+	        }
+	    </style>
+	</head>
 
-		 <td class="link-style" ng-click="removeIngredient(item)">delete</td>
-	</tr>
-
-	
-	<tr><td class="link-style" ng-click="addIngredient()">Add Ingredient</td></tr>
-	</table>
-	
-	<br>
-	<br>
-	<script>
-		function redirectHome() {
-			window.location.href = '/';
+	<!-- Body of the page -->
+	<body ng-app="addRecipe" ng-controller="controller">
+	<!--import angularJS-->
+	  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+	  <script>
+	    /* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
+	    /*<![CDATA[*/ 
+	    var app = angular.module('addRecipe', []);
+		app.controller('controller', function($scope, $http, $q) {
+			
+		//initialize the list of recipes
+		$scope.recipe = [];
+		
+		//adds a blank ingredient to the end of the list
+		$scope.addIngredient = function() {
+		  $scope.recipe.push({name: "", units: 0});
 		}
-	</script>
-	<div>
-	  <p ng-class="{'red-text': submitStatusClass === 'error', 'green-text': submitStatusClass === 'success'}">{{submitStatus}}</p>
-		<button type="button" onClick="redirectHome()">Return Home</button>
-		<button type="button" ng-click="submit()">Save Recipe</button>
-	</div>
+		 //removes the parameter from the recipe list of ingredients
+		 $scope.removeIngredient = function(item) {
+		   var idx = $scope.recipe.indexOf(item);
+		   if(idx !== -1) {
+		     $scope.recipe.splice(idx, 1);
+		   }
+		 }
+	          //submits the list to the server
+	          $scope.submit = function() {
+	            const recipe = {
+	              name: $scope.recipeName,
+	              price: $scope.recipePrice,
+	              ingredients: $scope.recipe
+	            };
+	            recipe.name = $scope.recipeName;
+	            recipe.price = $scope.recipePrice;
+	            recipe.ingredients = $scope.recipe;
+	            $http.post("api/v1/recipes/", recipe).then(
+	              function(success) {
+	                console.log("success!");
+	                $scope.submitStatus = "Success! Recipe has been added.";
+	                $scope.submitStatusClass = "success";
+	              }, function(rejection) {
+	                console.log("failure!");
+	                $scope.submitStatus = "Failure! Unable to add recipe." + " " + rejection.data.message;
+	                $scope.submitStatusClass = "error";
+	              }
+	              );
+	            
+	          }
+	          
+		      //fetch all ingredient names in inventory
+	          $http.get("/api/v1/inventory").then(function(response) {
+	            $scope.availablelIngredients = [];
+	            for(let i = 0; i < response.data.ingredientList.length; i++) {
+	              $scope.availablelIngredients[i] = response.data.ingredientList[i].name;
+	            }
+	          });
+	          
+	          
+	          
+		});
+				  
+	  /* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
+	  /*]]>*/
+	  </script>
+		<!-- Header for the page, telling the user what the purpose of the page is (adding an ingredient here -->
+		<h1>Add Recipe</h1>
+		
+		<!-- Input boxes for the name and price of recipe to be added -->
+		<div>
+			<form>
+			  <label for="recipeName">Name:</label> <!-- Name box -->
+			  <input type="text" id="recipeName" name="recipeName" ng-model="recipeName" required="true"> <!-- Name box -->
+			  <label for="price">Price:</label> <!-- Price box -->
+			  <input type="text" id="price" name="price" ng-model="recipePrice" required="true"> <br> <br> <!-- Price box -->
+			  <!-- Multiple line breaks for spacing -->
+			</form>
+		</div>
+		
+		<!-- Header for the ingredients table -->
+		<h2>Ingredients</h2>
+		
+		
+		<!-- Table of user inputs -->
+		<table class = "center">
+		<!-- Ingredients row in table, stylistically used as a header -->
+		  <tr>
+		  	<th>Ingredients</th>
+		  	<th>Units</th>
+		  </tr>
+		  
+		  <!-- Drop down menu for ingredients, and input box for units holding dummy values right now -->
+		  <tr ng-repeat="item in recipe">
+		    <td>
+		    	<!-- Ingredients drop down -->
+		  		<select ng-model="item.name" ng-options="name for name in availablelIngredients" required="true">
+			       	<option value="">Select Ingredient</option>
+		       	</select>
+		    </td>
+		    <td>
+		       	<form>
+					<label for="units"></label> <!-- units box -->
+			  		<input type="number" id="units" name="units" ng-model="item.units" min="0"> <!-- units box -->
+		 		 </form>
+			 </td>	 
 	
+			 <td class="link-style" ng-click="removeIngredient(item)">delete</td>
+		</tr>
 	
-
-</body>
+		
+		<tr><td class="link-style" ng-click="addIngredient()">Add Ingredient</td></tr>
+		</table>
+		
+		<br>
+		<br>
+		<script>
+			function redirectHome() {
+				window.location.href = '/';
+			}
+		</script>
+		<div>
+		  <p ng-class="{'red-text': submitStatusClass === 'error', 'green-text': submitStatusClass === 'success'}">{{submitStatus}}</p>
+			<button type="button" onClick="redirectHome()">Return Home</button>
+			<button type="button" ng-click="submit()">Save Recipe</button>
+		</div>
+	</body>
+</html>

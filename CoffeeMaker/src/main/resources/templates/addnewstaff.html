@@ -3,58 +3,164 @@
 <head>
     <title>Coffee Maker - Add Staff Information</title>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <script>
-        angular.module('staffApp', [])
-            .controller('StaffController', function($scope, $http) {
-            	$scope.userName = '';
-            	$scope.password = '';
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #FFF0E5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
 
-                $scope.submitForm = function() {
-                	$scope.user = {
-                			userName: $scope.userName,
-                			password: $scope.password
-                	}
-                	
-                    // Post the data to the endpoint
-                    $http.post('/api/v1/users/staff/', $scope.user)
-                        .then(function(response) {
-                            // Handle success
-                            console.log('Staff member created successfully', response);
-                            $scope.user = {}; // Reset the form
-                            $scope.message = "Staff member created successfully"; // Set success message
-                        }, function(error) {
-                            // Handle error
-                            console.error('Error creating staff member', error);
-                            $scope.message = "Error creating staff member	"; // Set success message
-                        });
-                };
-            });
+        h1, h2 {
+            color: #A52A2A;
+            margin-bottom: 20px;
+        }
+
+        .content-wrapper {
+            background-color: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: rgba(165, 42, 42, 0.05);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 200px;
+            padding: 8px 15px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        button, input[type="submit"] {
+            background-color: #A52A2A;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover, input[type="submit"]:hover {
+            background-color: #8B4513;
+        }
+
+        .form-row {
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .buttons-container {
+            margin-top: 20px;
+        }
+
+        .success-message {
+            color: #4CAF50;
+            background: rgba(76,175,80,0.08);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .error-message {
+            color: #ff3d3d;
+            background: rgba(255,0,0,0.08);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+    <script>
+	    angular.module('staffApp', [])
+	    .controller('StaffController', function($scope, $http) {
+	        $scope.userName = '';
+	        $scope.password = '';
+	
+	        $scope.submitForm = function() {
+	            // Send username as path parameter and password in body
+	            $http.post('/api/v1/users/staff/' + $scope.userName, $scope.password)
+	                .then(function(response) {
+	                    console.log('Staff member created successfully', response);
+	                    // Clear form
+	                    $scope.userName = '';
+	                    $scope.password = '';
+	                    $scope.message = "Staff member created successfully";
+	                    $scope.isError = false;
+	                }, function(error) {
+	                    console.error('Error creating staff member:', error);
+	                    if (error.status === 403) {
+	                        $scope.message = "Access Denied. Manager privileges required.";
+	                    } else {
+	                        $scope.message = "A staff member with this username already exists.";
+	                    }
+	                    $scope.isError = true;
+	                });
+	        };
+	    });
     </script>
     <script>
-    function returnHome() {
-       window.location.href = '/managereditstaff.html';
-    }
+        function returnHome() {
+            window.location.href = '/managereditstaff.html';
+        }
     </script>
 </head>
 <body ng-controller="StaffController">
-<div ng-show="message" class="message">
-    {{message}}
-</div>
-<div class="container">
-    <h1>Coffee Maker</h1>
-    <h2>Add New Staff</h2>
+    <div class="content-wrapper">
+        <h1>Coffee Maker</h1>
+        <h2>Add New Staff</h2>
 
-    <form ng-submit="submitForm()">
-        <label for="username">Username:</label>
-        <input type="text" id="userName" ng-model="userName" placeholder="Enter username" required>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" ng-model="password" placeholder="Enter new password" required>
-        
-        <input type="submit" value="Submit">
-    </form>
-    <button type="button" onClick="returnHome()">Return Home</button>
-</div>
+        <div ng-show="message" ng-class="{'success-message': !isError, 'error-message': isError}">
+            {{message}}
+        </div>
 
+        <div class="form-group">
+            <form ng-submit="submitForm()">
+                <div class="form-row">
+                    <label for="username">Username:</label>
+                    <input type="text" id="userName" ng-model="userName" placeholder="Enter username" required>
+                </div>
+                
+                <div class="form-row">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" ng-model="password" placeholder="Enter new password" required>
+                </div>
+                
+                <div class="buttons-container">
+                    <input type="submit" value="Add Staff Member">
+                    <button type="button" onClick="returnHome()">Return Home</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

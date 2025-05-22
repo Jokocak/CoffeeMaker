@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -163,24 +165,46 @@ public class APIUserController extends APIController {
         }
         return new ResponseEntity( u, HttpStatus.OK );
     }
-
-    @SuppressWarnings ( { "rawtypes", "unchecked" } )
-    @PostMapping ( BASE_PATH + "users/staff" )
-    public ResponseEntity createStaff ( @RequestBody final User user ) {
+    
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @PostMapping(BASE_PATH + "users/staff/{username}")
+    public ResponseEntity createStaff(@PathVariable final String username, @RequestBody final String password) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ( !isAuthorized( authentication, User.MANAGER ) ) {
-            // throw new AccessDeniedException( "Access Denied" );
-
-            return new ResponseEntity( "This is where it is messing up.", HttpStatus.CONFLICT );
+        if (!isAuthorized(authentication, User.MANAGER)) {
+            return new ResponseEntity("Access Denied", HttpStatus.FORBIDDEN);
         }
 
-        final User u = userService.loadUserByUsername( user.getUsername() );
-        if ( u != null ) {
-            return new ResponseEntity( "A User with the given username already exists", HttpStatus.CONFLICT );
+        final User u = userService.loadUserByUsername(username);
+        if (u != null) {
+            return new ResponseEntity("A User with the given username already exists", HttpStatus.CONFLICT);
         }
-        userService.registerStaff( user );
-        return new ResponseEntity( HttpStatus.OK );
+
+        // Create new User object with the provided username and password
+        User newUser = new User();
+        newUser.setUserName(username);
+        newUser.setPassword(password);
+
+        userService.registerStaff(newUser);
+        return new ResponseEntity(HttpStatus.OK);
     }
+
+//    @SuppressWarnings ( { "rawtypes", "unchecked" } )
+//    @PostMapping ( BASE_PATH + "users/staff" )
+//    public ResponseEntity createStaff ( @RequestBody final User user ) {
+//        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if ( !isAuthorized( authentication, User.MANAGER ) ) {
+//            // throw new AccessDeniedException( "Access Denied" );
+//
+//            return new ResponseEntity( "This is where it is messing up.", HttpStatus.CONFLICT );
+//        }
+//
+//        final User u = userService.loadUserByUsername( user.getUsername() );
+//        if ( u != null ) {
+//            return new ResponseEntity( "A User with the given username already exists", HttpStatus.CONFLICT );
+//        }
+//        userService.registerStaff( user );
+//        return new ResponseEntity( HttpStatus.OK );
+//    }
 
     @SuppressWarnings ( { "rawtypes", "unchecked" } )
     @PostMapping ( BASE_PATH + "users/manager" )
@@ -197,22 +221,25 @@ public class APIUserController extends APIController {
         userService.registerManager( user );
         return new ResponseEntity( HttpStatus.OK );
     }
-
-    @SuppressWarnings ( { "rawtypes", "unchecked" } )
-    @PutMapping ( BASE_PATH + "users/staff" )
-    public ResponseEntity editStaff ( @RequestBody final User user ) {
+    
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @PutMapping(BASE_PATH + "users/staff/{username}")
+    public ResponseEntity editStaff(@PathVariable final String username, @RequestBody final String newPassword) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ( !isAuthorized( authentication, User.MANAGER ) ) {
-            throw new AccessDeniedException( "Access Denied" );
+        if (!isAuthorized(authentication, User.MANAGER)) {
+            throw new AccessDeniedException("Access Denied");
         }
 
-        final User u = userService.loadUserByUsername( user.getUsername() );
-        if ( u == null ) {
-            return new ResponseEntity( "User not found", HttpStatus.NOT_FOUND );
+        System.out.println("Received username: " + username);
+        final User u = userService.loadUserByUsername(username);
+        System.out.println("Found user: " + (u != null ? u.getUsername() : "null"));
+        if (u == null) {
+            return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
         }
-        u.setPassword( user.getPassword() );
-        userService.save( u );
-        return new ResponseEntity( HttpStatus.OK );
+        final PasswordEncoder p = new BCryptPasswordEncoder();
+        u.setPassword( p.encode( newPassword ) );
+        userService.save(u);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @SuppressWarnings ( { "rawtypes", "unchecked" } )

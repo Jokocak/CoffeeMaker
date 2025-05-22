@@ -136,9 +136,19 @@ public class APIRecipeController extends APIController {
     @PutMapping ( BASE_PATH + "/recipes" )
     public ResponseEntity editRecipe ( @RequestBody final Recipe recipe ) {
         final Authentication a = SecurityContextHolder.getContext().getAuthentication();
+        boolean authorized = false;
         if ( isAuthorized( a, User.STAFF ) ) {
-            return new ResponseEntity( HttpStatus.FORBIDDEN );
+        	authorized  = true;
         }
+        
+        if ( isAuthorized( a, User.MANAGER ) ) {
+        	authorized = true;
+        }
+        
+        if ( !authorized ) {
+          return new ResponseEntity( HttpStatus.FORBIDDEN );
+        }
+        
         final String name = recipe.getName();
         final Recipe r = service.findByName( name );
         if ( r == null ) {
@@ -170,10 +180,19 @@ public class APIRecipeController extends APIController {
     @DeleteMapping ( BASE_PATH + "/recipes/{name}" )
     public ResponseEntity deleteRecipe ( @PathVariable final String name ) {
         final Authentication a = SecurityContextHolder.getContext().getAuthentication();
+        boolean authorized = false;
         if ( isAuthorized( a, User.STAFF ) ) {
-            return new ResponseEntity( HttpStatus.FORBIDDEN );
+        	authorized  = true;
         }
-
+        
+        if ( isAuthorized( a, User.MANAGER ) ) {
+        	authorized = true;
+        }
+        
+        if ( !authorized ) {
+          return new ResponseEntity( HttpStatus.FORBIDDEN );
+        }
+        
         final Recipe recipe = service.findByName( name );
         if ( null == recipe ) {
             return new ResponseEntity( errorResponse( "No recipe found for name " + name ), HttpStatus.NOT_FOUND );

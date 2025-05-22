@@ -41,8 +41,8 @@ public class GenerateIngredients {
     @Transactional
     public void testCreateIngredients () {
         mvc = MockMvcBuilders.webAppContextSetup( context ).build();
-        // recipeService.deleteAll();
-        // inventoryService.deleteAll();
+        recipeService.deleteAll();
+        inventoryService.deleteAll();
         ingredientService.deleteAll();
 
         final Ingredient i1 = new Ingredient( "Coffee", 5 );
