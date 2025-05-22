@@ -168,6 +168,15 @@
 		    -webkit-appearance: none;
 		    margin: 0;
 		}
+		
+		.order-total {
+		    color: #A52A2A;
+		    font-weight: bold;
+		    margin-left: 15px;
+		    padding: 2px 8px;
+		    background-color: rgba(165, 42, 42, 0.1);
+		    border-radius: 4px;
+		}
     </style>
 </head>
 
@@ -285,21 +294,22 @@
         
         <div ng-if="pending.length > 0">
             <ul class="orders-list">
-                <li ng-repeat="order in pending" class="order-item">
-                    <label>
-                        <input type="radio" 
-                               name="selectedOrder" 
-                               ng-model="$parent.selectedOrder" 
-                               ng-value="order"
-                               ng-change="select(order)">
-                        <div class="order-details">
-                            <span class="order-number">Order #{{order.orderNumber}}</span>
-                            <span>{{order.userName}} - </span>
-                            <span ng-repeat="x in order.mul">{{x.name}}: ({{x.amount}}) </span>
-                        </div>
-                    </label>
-                </li>
-            </ul>
+			    <li ng-repeat="order in pending" class="order-item">
+			        <label>
+			            <input type="radio" 
+			                   name="selectedOrder" 
+			                   ng-model="$parent.selectedOrder" 
+			                   ng-value="order"
+			                   ng-change="select(order)">
+			            <div class="order-details">
+			                <span class="order-number">Order #{{order.orderNumber}}</span>
+			                <span>{{order.userName}} - </span>
+			                <span ng-repeat="x in order.mul">{{x.name}}: ({{x.amount}}) </span>
+			                <span class="order-total">Total: ${{order.total.toFixed(2)}}</span>
+			            </div>
+			        </label>
+			    </li>
+			</ul>
 
 			<div class="payment-section">
 			    <label for="amtPaid">Enter payment amount:</label>
