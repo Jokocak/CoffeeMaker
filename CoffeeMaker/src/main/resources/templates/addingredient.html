@@ -1,162 +1,216 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!-- Title of the page (this is displayed on the tab that the html page is open in -->
-<title>Add Ingredient</title>
-
-
-<!-- Style conventions, we want everything centered -->
-<style>
-h1 {text-align: center;}
-h2 {text-align: center;}
-p {text-align: center;}
-
-.inline-form * {
-    display: inline; 
-    margin-right: 10px; 
-}
-
-.red-text {
-	color: red
-}
-.green-text {
-	color: green
-}
-
-a.fill {
-  display: block;
-  text-decoration: none;
-  height: 100%;
-  width: 100%;
-}
-
-.inlineForm {
-        text-align: center;
-        margin: auto; 
-        width: 50%;
-        border: 2px solid rgba(32, 178, 170, 0.5); 
-        border-radius: 20px; 
-        padding: 20px;
-        background-color: rgba(32, 178, 170, 0.5); 
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-    }
-    
-    
-.bubble-input {
-
-        border: 2px solid #9FE2BF; 
-        border-radius: 20px;
-        padding: 10px 20px; 
-        outline: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-        background-color: #9FE2BF; 
-    }
-
-.center {
-	margin-left: auto;
-    margin-right: auto;
-}
-button {text-align: center;}
-</style>
-
-
-<body ng-app="addIngredient" ng-controller="controller">
-  <!-- script for importing AngularJS -->
-  <script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
-  <!-- Angular logic -->
-		<script>
-			/* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
-			/*<![CDATA[*/ 
-			var app = angular.module('addIngredient', []);
-			app.controller('controller', function($scope, $http, $q) {
-        //page logic goes here
-        $scope.submitIngredient = function() {
-          //check that fields are valid
-          var name = $scope.ingredientName;
-          //parse the amount field for an integer value
-          var amount = parseInt(Number($scope.ingredientAmount));
-          
-          
-          if(!$scope.ingredientName || $scope.ingredientName.length <= 0) {
-            console.log("name invalid");
-            //error state, tell user the name is invalid
-            alert("Please fill in the name box") //pop up for if the name is invalid
-            return; // stops it from reaching the next if statements
-          }
-          if(isNaN(amount) || amount < 0) {
-            console.log("amount invalid");
-            alert("Invalid amount, please enter a value greater than 0") //popup for invalid amount
-            return;
-            //error state, tell use the amount is invalid
-          }
-          //submit the form, show user a pop up based on whether or
-          //not the server returned an http/OK status
-          
-          
-          //THIS DOES NOT SEEM TO BE ADDING TO THE DATABASE LIKE IT SHOULD
-          
-          var ingredientToAdd = {name: name, units: amount};
-          
-          $http.post('/api/v1/ingredient', ingredientToAdd)
-          .then(function(response) {
-              // Handle success
-              alert('Ingredient added successfully!');
-              
-          }, function(error) {
-              // Handle error
-              alert('Failed to add ingredient. Please try again.');
-          }) 
-        	  
-        }
-
-	});
-			
-			/* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
-			/*]]>*/
-		</script>
-
-
-
-	<div style="background-color:#d3d3d3; text-align: center;">
-		<br>
-		<h1>Add Ingredient Menu</h1>
-		<br>
-	</div>
+	<head>
+	    <title>Add Ingredient</title>
+	    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+	    <style>
+	        html, body {
+	            height: 100%;
+	            margin: 0;
+	        }
+	        
+	        body {
+	            font-family: 'Arial', sans-serif;
+	            background-color: #FFF0E5;
+	            display: flex;
+	            justify-content: center;
+	            align-items: center;
+	            flex-direction: column;
+	            text-align: center;
+	            padding: 20px;
+	        }
 	
-	<div class="inline-form">
-    <br> Please enter the name of the ingredient to be added
-	    <form>
-	        <label for="ingredientName"></label> <!-- Name box -->
-	        <input type="text" id="ingredientName" name="ingredientName" ng-model="ingredientName" required="true" class="bubble-input">
-	    </form>
-	</div>
+	        h1, h2 {
+	            color: #A52A2A;
+	            margin-bottom: 20px;
+	        }
 	
-	<br><br><br>
+	        .content-wrapper {
+	            background-color: white;
+	            border-radius: 20px;
+	            padding: 40px;
+	            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	            margin-bottom: 20px;
+	            width: 80%;
+	            max-width: 600px;
+	        }
 	
-	<div class="inline-form">
-    	 Please enter the initial amount of ingredients in your Inventory
-    	 <form>
-	        <label for="inventoryAmount"></label> <!-- Name box -->
-	        <input type="text" id="inventoryAmount" name="inventoryAmount" ng-model="ingredientAmount" required="true" class="bubble-input">
-	    </form>
-	</div>
+	        .form-group {
+	            margin: 20px 0;
+	            padding: 15px;
+	            border-radius: 10px;
+	            background-color: rgba(165, 42, 42, 0.05);
+	        }
 	
-	<br><br><br><br><br><br><br><br><br>
+	        .form-group label {
+	            display: block;
+	            margin-bottom: 10px;
+	            color: #555;
+	            font-weight: bold;
+	        }
 	
-		<p ng-class="{'red-text': submitStatusClass === 
-			'error', 'green-text': submitStatusClass === 'sucess}">{{submitStatus}}</p>
+	        input[type="text"] {
+	            width: 80%;
+	            padding: 12px;
+	            margin: 10px 0;
+	            border: 1px solid #ddd;
+	            border-radius: 20px;
+	            font-size: 14px;
+	            transition: border-color 0.3s;
+	        }
+	
+	        input[type="text"]:focus {
+	            border-color: #A52A2A;
+	            outline: none;
+	            box-shadow: 0 0 5px rgba(165, 42, 42, 0.2);
+	        }
+	
+	        .submit-button {
+	            background-color: #A52A2A;
+	            color: white;
+	            border: none;
+	            padding: 15px 30px;
+	            margin: 20px 0;
+	            border-radius: 20px;
+	            cursor: pointer;
+	            font-size: 16px;
+	            transition: background-color 0.3s;
+	            width: 200px;
+	        }
+	
+	        .submit-button:hover {
+	            background-color: #8B4513;
+	        }
+	
+	        .home-link {
+	            color: #2196F3;
+	            text-decoration: none;
+	            font-weight: bold;
+	            margin-top: 20px;
+	            display: inline-block;
+	        }
+	
+	        .home-link:hover {
+	            text-decoration: underline;
+	        }
+	
+	        .red-text {
+	            color: #ff3d3d;
+	            background: rgba(255,0,0,0.08);
+	            border-radius: 8px;
+	            padding: 10px;
+	            margin: 10px 0;
+	            display: block;
+	        }
+	
+	        .green-text {
+	            color: #4CAF50;
+	            background: rgba(76,175,80,0.08);
+	            border-radius: 8px;
+	            padding: 10px;
+	            margin: 10px 0;
+	            display: block;
+	        }
+	    </style>
+	</head>
+	
+	<body ng-app="addIngredient" ng-controller="controller">
+	  <!-- script for importing AngularJS -->
+	  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+	  
+	  <!-- Angular logic -->
+			<script>
+				/* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
+				/*<![CDATA[*/ 
+				var app = angular.module('addIngredient', []);
+				app.controller('controller', function($scope, $http, $q) {
+	        //page logic goes here
+	        $scope.submitIngredient = function() {
+	          //check that fields are valid
+	          var name = $scope.ingredientName;
+	          //parse the amount field for an integer value
+	          var amount = parseInt(Number($scope.ingredientAmount));
+	          
+	          
+	          if(!$scope.ingredientName || $scope.ingredientName.length <= 0) {
+	            console.log("name invalid");
+	            //error state, tell user the name is invalid
+	            alert("Please fill in the name box") //pop up for if the name is invalid
+	            return; // stops it from reaching the next if statements
+	          }
+	          if(isNaN(amount) || amount < 0) {
+	            console.log("amount invalid");
+	            alert("Invalid amount, please enter a value greater than 0") //popup for invalid amount
+	            return;
+	            //error state, tell use the amount is invalid
+	          }
+	          //submit the form, show user a pop up based on whether or
+	          //not the server returned an http/OK status
+	          
+	          
+	          //THIS DOES NOT SEEM TO BE ADDING TO THE DATABASE LIKE IT SHOULD
+	          
+	          var ingredientToAdd = {name: name, units: amount};
+	          
+	          $http.post('/api/v1/ingredient', ingredientToAdd)
+	          .then(function(response) {
+	              // Handle success
+	              alert('Ingredient added successfully!');
+	              
+	          }, function(error) {
+	              // Handle error
+	              alert('Failed to add ingredient. Please try again.');
+	          }) 
+	        	  
+	        }
+	
+		});
+				
+				/* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
+				/*]]>*/
+			</script>
 	
 	
 	
-		<div class="inlineForm" ng-click="submitIngredient()" style="cursor: pointer;">
-		    <h2>Add Ingredient</h2>
-		</div>
-	
-	
-	
-	
+		<div class="content-wrapper">
+        <h1>Add Ingredient</h1>
 
+        <div class="form-group">
+            <label>Ingredient Name</label>
+            <input type="text" 
+                   id="ingredientName" 
+                   name="ingredientName" 
+                   ng-model="ingredientName" 
+                   placeholder="Enter ingredient name"
+                   required="true">
+        </div>
 
+        <div class="form-group">
+            <label>Initial Amount</label>
+            <input type="text" 
+                   id="inventoryAmount" 
+                   name="inventoryAmount" 
+                   ng-model="ingredientAmount" 
+                   placeholder="Enter initial amount"
+                   required="true">
+        </div>
 
-		<br /> <a href="/index">Home</a>
+        <div class="message-container">
+            <p ng-class="{'red-text': submitStatusClass === 'error', 
+                         'green-text': submitStatusClass === 'success'}">
+                {{submitStatus}}
+            </p>
+        </div>
 
-</body>
+        <button class="submit-button" 
+                ng-click="submitIngredient()">
+            Add Ingredient
+        </button>
+
+        <div>
+            <a href="/index" class="home-link">Return Home</a>
+        </div>
+    </div>
+	
+	</body>
+</html>
