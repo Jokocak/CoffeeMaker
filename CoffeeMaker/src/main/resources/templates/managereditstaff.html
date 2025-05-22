@@ -1,92 +1,256 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Manager Edit Staff Page</title>
-    <!-- Include AngularJS -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <script>
-        angular.module('editStaffApp', [])
-            .controller('StaffController', function($scope, $http) {
-                $scope.showEditFields = false;
-                $scope.selectedStaffMember = null;
+	<head>
+	    <title>Manager Edit Staff Page</title>
+	    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+	    <style>
+	        html, body {
+	            height: 100%;
+	            margin: 0;
+	        }
+	        
+	        body {
+	            font-family: 'Arial', sans-serif;
+	            background-color: #FFF0E5;
+	            display: flex;
+	            justify-content: center;
+	            align-items: center;
+	            flex-direction: column;
+	            text-align: center;
+	            padding: 20px;
+	        }
+	
+	        h1, h2 {
+	            color: #A52A2A;
+	            margin-bottom: 20px;
+	        }
+	
+	        .content-wrapper {
+	            background-color: white;
+	            border-radius: 20px;
+	            padding: 40px;
+	            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	            margin-bottom: 20px;
+	            width: 80%;
+	            max-width: 600px;
+	        }
+	
+	        .form-group {
+	            margin: 20px 0;
+	            padding: 15px;
+	            border-radius: 10px;
+	            background-color: rgba(165, 42, 42, 0.05);
+	        }
+	
+	        select {
+	            padding: 8px 15px;
+	            border: 1px solid #ddd;
+	            border-radius: 20px;
+	            margin: 10px;
+	            width: 200px;
+	            font-size: 14px;
+	        }
+	
+	        input[type="text"],
+	        input[type="password"] {
+	            width: 200px;
+	            padding: 8px 15px;
+	            margin: 10px;
+	            border: 1px solid #ddd;
+	            border-radius: 20px;
+	            font-size: 14px;
+	        }
+	
+	        button {
+	            background-color: #A52A2A;
+	            color: white;
+	            border: none;
+	            padding: 10px 20px;
+	            margin: 10px;
+	            border-radius: 20px;
+	            cursor: pointer;
+	            transition: background-color 0.3s;
+	        }
+	
+	        button:hover {
+	            background-color: #8B4513;
+	        }
+	
+	        button:disabled {
+	            background-color: #cccccc;
+	            cursor: not-allowed;
+	        }
+	
+	        .edit-section {
+	            margin-top: 20px;
+	            padding: 20px;
+	            border-radius: 10px;
+	            background-color: rgba(165, 42, 42, 0.05);
+	        }
+	
+	        .form-row {
+	            margin: 15px 0;
+	            display: flex;
+	            flex-direction: column;
+	            align-items: center;
+	        }
+	
+	        label {
+	            font-weight: bold;
+	            color: #555;
+	            margin-bottom: 5px;
+	        }
+	
+	        .buttons-container {
+	            margin-top: 20px;
+	        }
+	
+	        .success-message {
+	            color: #4CAF50;
+	            background: rgba(76,175,80,0.08);
+	            border-radius: 8px;
+	            padding: 10px;
+	            margin: 10px 0;
+	        }
+	
+	        .error-message {
+	            color: #ff3d3d;
+	            background: rgba(255,0,0,0.08);
+	            border-radius: 8px;
+	            padding: 10px;
+	            margin: 10px 0;
+	        }
+	        
+	        .readonly-input {
+			    background-color: #f8f8f8;
+			    color: #666;
+			    cursor: not-allowed;
+			}
+	    </style>
+	</head>
 
-                $scope.fetchStaffMembers = function() {
-                    $http.get('/api/v1/users/staff')
-                        .then(function(response) {
-                            $scope.staffMembers = response.data;
-                            if ($scope.staffMembers.length > 0) {
-                                console.log("First staff member's userName:", $scope.staffMembers[0].username);
-                            } else {
-                                console.log("No staff members found");
-                            }
-                        }, function(error) {
-                            console.error('Error fetching staff members:', error);
-                        });
-                };
 
-                $scope.continueAction = function() {
-                    if ($scope.selectedStaff) {
-                        $scope.selectedStaffMember = $scope.selectedStaff;
-                        $scope.showEditFields = true;
-                    } else {
-                        alert('Please select a staff member.');
-                    }
-                };
-                
-                // Function to handle the update staff member action
-                $scope.updateStaffMember = function() {
-                    $http.put('/api/v1/users/staff/', $scope.editableStaffMember)
-                        .then(function(response) {
-                            // Handle success should work
-                            alert('Staff member updated successfully.');
-                            $scope.fetchStaffMembers(); // Refresh the staff members list
-                            $scope.showEditFields = false;
-                        }, function(error) {
-                            // Handle error
-                            console.error('Error updating staff member:', error);
-                            alert('Failed to update staff member.');
-                        });
-                };
-
-                $scope.fetchStaffMembers();
-            });
-    </script>
-    <script>
-        function addNewStaff() {
-            window.location.href = 'addnewstaff.html';
-        }
-        function returnHome() {
-            window.location.href = 'managerhome.html';
-        }
-    </script>
-</head>
-<body ng-app="editStaffApp" ng-controller="StaffController">
-
-    <h1>Coffee Maker</h1>
- 
-    <div id="editStaffSection">
-        <h2>Edit Staff</h2>
-        <label for="staffSelect">Choose Staff Member:</label>
-		<select id="staffSelect" name="staff" ng-model="selectedStaff"
-		        ng-options="staff.username for staff in staffMembers">
-		    <option value="">Select a staff member</option>
-		</select>
-        <br><br>
-        <button ng-click="continueAction()">Continue</button>
-        <button type="button" onclick="addNewStaff()">Add New Staff</button>
-        <button type="button" onclick="returnHome()">Return Home</button>
-    </div>
-
-    <!-- Edit fields -->
-    <div ng-show="showEditFields">
-        <label for="editUsername">Username:</label>
-        <input type="text" id="editUsername" ng-model="selectedStaffMember.userName" placeholder="Username" ng-disabled="!showEditFields">
-        
-        <label for="editPassword">Password:</label>
-        <input type="password" id="editPassword" ng-model="selectedStaffMember.password" placeholder="New Password" ng-disabled="!showEditFields">
-        
-        <button ng-click="updateStaffMember()">Update Staff Member</button>
-    </div>
-
-</body>
+	<body ng-app="editStaffApp" ng-controller="StaffController">
+		<div class="content-wrapper">
+	        <h1>Coffee Maker</h1>
+	        <h2>Edit Staff</h2>
+	
+	        <div class="form-group">
+	            <div class="form-row">
+	                <label for="staffSelect">Choose Staff Member:</label>
+	                <select id="staffSelect" 
+	                        name="staff" 
+	                        ng-model="selectedStaff"
+	                        ng-options="staff.username for staff in staffMembers">
+	                    <option value="">Select a staff member</option>
+	                </select>
+	            </div>
+	
+	            <div class="buttons-container">
+	                <button ng-click="continueAction()">Continue</button>
+	                <button type="button" onclick="addNewStaff()">Add New Staff</button>
+	                <button type="button" onclick="returnHome()">Return Home</button>
+	            </div>
+	        </div>
+	
+	        <!-- Edit fields -->
+	        <div ng-show="showEditFields" class="edit-section">
+			    <div class="form-row">
+			        <label for="editUsername">Username:</label>
+			        <input type="text" 
+			               id="editUsername" 
+			               ng-model="selectedStaffMember.userName" 
+			               placeholder="Username" 
+			               ng-disabled="!showEditFields"
+			               readonly
+			               class="readonly-input">
+			    </div>
+			    
+			    <div class="form-row">
+			        <label for="editPassword">Password:</label>
+			        <input type="password" 
+			               id="editPassword" 
+			               ng-model="selectedStaffMember.password" 
+			               placeholder="New Password" 
+			               ng-disabled="!showEditFields">
+			    </div>
+			    
+			    <div class="buttons-container">
+			        <button ng-click="updateStaffMember()">Update Staff Member</button>
+			    </div>
+			</div>
+	    </div>
+	    
+		<script>
+	        angular.module('editStaffApp', [])
+	            .controller('StaffController', function($scope, $http) {
+	                $scope.showEditFields = false;
+	                $scope.selectedStaffMember = null;
+	
+	                $scope.fetchStaffMembers = function() {
+	                    $http.get('/api/v1/users/staff')
+	                        .then(function(response) {
+	                            $scope.staffMembers = response.data;
+	                            if ($scope.staffMembers.length > 0) {
+	                                console.log("First staff member's userName:", $scope.staffMembers[0].username);
+	                            } else {
+	                                console.log("No staff members found");
+	                            }
+	                        }, function(error) {
+	                            console.error('Error fetching staff members:', error);
+	                        });
+	                };
+	
+	                $scope.continueAction = function() {
+	                    if ($scope.selectedStaff) {
+	                        $scope.selectedStaffMember = {
+	                            id: $scope.selectedStaff.id,
+	                            userName: $scope.selectedStaff.username,
+	                            password: ''  // Clear password field for security
+	                        };
+	                        $scope.showEditFields = true;
+	                    } else {
+	                        alert('Please select a staff member.');
+	                    }
+	                };
+	                
+	                // Function to handle the update staff member action
+	                $scope.updateStaffMember = function() {
+					    // Create the editable staff member object from selectedStaffMember
+					    $scope.editableStaffMember = {
+					        id: $scope.selectedStaffMember.id,
+					        username: $scope.selectedStaffMember.userName,
+					        password: $scope.selectedStaffMember.password
+					    };
+					    
+					    console.log("Updating staff member:", $scope.editableStaffMember);
+					    
+					    $http.put('/api/v1/users/staff/' + $scope.editableStaffMember.username, $scope.editableStaffMember.password)
+					        .then(function(response) {
+					            // Handle success
+					            alert('Staff member updated successfully.');
+					            $scope.fetchStaffMembers(); // Refresh the staff members list
+					            $scope.showEditFields = false;
+					            // Reset the form
+					            $scope.selectedStaffMember = null;
+					            $scope.selectedStaff = null;
+					        }, function(error) {
+					            // Handle error
+					            console.error('Error updating staff member:', error);
+					            alert('Failed to update staff member.');
+					        });
+					};
+						
+	                $scope.fetchStaffMembers();
+	            });
+	    </script>
+	    <script>
+	        function addNewStaff() {
+	            window.location.href = 'addnewstaff.html';
+	        }
+	        function returnHome() {
+	            window.location.href = 'managerhome.html';
+	        }
+	    </script>
+	</body>
 </html>
