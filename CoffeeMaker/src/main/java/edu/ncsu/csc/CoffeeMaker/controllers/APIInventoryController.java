@@ -68,28 +68,17 @@ public class APIInventoryController extends APIController {
         if ( !isAuthorized( a, User.MANAGER ) ) {
             return new ResponseEntity( HttpStatus.FORBIDDEN );
         }
-        
-        // Grab database inventory
-        final Inventory currentInventory = service.getInventory();
-        
-        for ( final Ingredient ingredient : inventory.getIngredientList() ) {
-//        	currentInventory.
-        }
-        
-        
-        
-        return null;
 
-//        final Inventory inventoryCurrent = service.getInventory();
-//
-//        // Update the inventory
-//        for ( final Ingredient ingredient : inventory.getIngredientList() ) {
-//            final String name = ingredient.getName();
-//            final int units = ingredient.getUnits();
-//            inventoryCurrent.stockIngredient( name, units );
-//        }
-//
-//        service.save( inventoryCurrent );
-//        return new ResponseEntity( inventoryCurrent, HttpStatus.OK );
+        final Inventory inventoryCurrent = service.getInventory();
+
+        // Update the inventory
+        for ( final Ingredient ingredient : inventory.getIngredientList() ) {
+            final String name = ingredient.getName();
+            final int units = ingredient.getUnits();
+            inventoryCurrent.stockIngredient( name, units );
+        }
+
+        service.save( inventoryCurrent );
+        return new ResponseEntity( inventoryCurrent, HttpStatus.OK );
     }
 }

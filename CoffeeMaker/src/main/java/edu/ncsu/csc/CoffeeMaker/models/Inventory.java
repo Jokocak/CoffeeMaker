@@ -107,6 +107,28 @@ public class Inventory extends DomainObject {
         }
         return true;
     }
+    
+    public boolean enoughIngredients( final List<Recipe> recipes ) {
+    	// Map ingredient name to position in ingredients list
+    	final TreeMap<String, Integer> idxMap = new TreeMap<String, Integer>();
+    	for ( int i = 0; i < ingredients.size(); i++ ) {
+    		idxMap.put( ingredients.get( i ).getName(), i);
+    	}
+    	
+    	// Iterate through each recipe tracking the ingredients included
+    	final TreeMap<String, Integer> neededIngredients = new TreeMap<String, Integer>();
+    	for ( Recipe recipe : recipes ) {
+    		for ( Ingredient i : recipe.getIngredients() ) {
+    			// Update ingredient count or add ingredient to map
+    			// ...
+    		}
+    	}
+    	
+    	
+    	// 
+    	
+    	return true;
+    }
 
     /**
      * Removes the ingredients used to make the specified recipe. Assumes that

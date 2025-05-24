@@ -216,6 +216,10 @@ public class APIOrderController extends APIController {
             // Check if enough ingredients for each recipe
             final Inventory inventory = inventoryService.getInventory();
             final List<Recipe> recipes = ord.getRecipes();
+            
+            // Check if enough ingredients for each recipe
+            
+            
             for ( final Recipe recipe : recipes ) {
                 if ( !inventory.useIngredients( recipe ) ) {
                     return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
