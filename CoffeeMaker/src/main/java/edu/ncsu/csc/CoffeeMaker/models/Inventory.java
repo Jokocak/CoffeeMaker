@@ -120,13 +120,30 @@ public class Inventory extends DomainObject {
     	for ( Recipe recipe : recipes ) {
     		for ( Ingredient i : recipe.getIngredients() ) {
     			// Update ingredient count or add ingredient to map
-    			// ...
+    			if (neededIngredients.get(i.getName()) == null) {
+    				neededIngredients.put(i.getName(), i.getUnits());
+    			} else {
+    				neededIngredients.put(i.getName(), neededIngredients.get(i.getName()) + i.getUnits());
+    			}
     		}
     	}
     	
+    	// Check if we have enough of each ingredient
+    	for ( final String ingredient : neededIngredients.keySet() ) {
+    		Integer ingredientIdx = idxMap.get( ingredient );
+    		
+    		// Check if ingredient exists
+    		if ( ingredientIdx == null ) {
+    			return false;
+    		}
+    		
+    		// Check if we have enough ingredients for this item
+    		if ( ingredients.get( ingredientIdx ).getUnits() < neededIngredients.get(ingredient)) {
+    			return false;
+    		}
+    	}
     	
-    	// 
-    	
+    	// Return true if made down here
     	return true;
     }
 

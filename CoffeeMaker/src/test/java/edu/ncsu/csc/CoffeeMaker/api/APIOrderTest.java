@@ -352,6 +352,93 @@ public class APIOrderTest {
         mvc.perform( put( "/api/v1/orders/" + id ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( 4 ) ) ).andExpect( status().isBadRequest() );
     }
+    
+    /**
+     * This method tests the fulfill order functionality endpoint with a staff.
+     *
+     * @throws UnsupportedEncodingException
+     *             Endpoints can throw an exception
+     * @throws Exception
+     *             Endpoints can throw an exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser ( authorities = User.STAFF )
+    public void testFulfillOrderStaffTwo () throws UnsupportedEncodingException, Exception {
+        // Inventory
+        Inventory inventory = inventoryService.getInventory();
+        inventory.addIngredient( "Coffee", 50 );
+        inventory.addIngredient( "Milk", 50 );
+        inventory.addIngredient( "Black Tea", 50 );
+        inventoryService.save( inventory );
+
+        // Create ingredients
+        final Ingredient coffee = new Ingredient( "Coffee", 5 );
+        final Ingredient milk = new Ingredient( "Milk", 5 );
+        final Ingredient blackTea = new Ingredient( "Black Tea", 2 );
+        final Ingredient blackMilk = new Ingredient( "Milk", 1 );
+
+        // Create recipe
+        final Recipe recipe = new Recipe();
+        recipe.setName( "Milk Coffee" );
+        recipe.setPrice( 4 );
+        recipe.addIngredient( coffee );
+        recipe.addIngredient( milk );
+        
+        final Recipe recipeTwo = new Recipe();
+        recipeTwo.setName( "Black Tea" );
+        recipeTwo.setPrice( 2 );
+        recipeTwo.addIngredient( blackTea );
+        recipeTwo.addIngredient( blackMilk );
+
+        // Save recipe
+        recipeService.save( recipe );
+        recipeService.save( recipeTwo );
+
+        // Add recipe to order and save it
+        final Order order = new Order( "jokocak", 1, 6, true, false, false );
+        order.addRecipe( recipe );
+        order.addRecipe( recipeTwo );
+        orderService.save( order );
+        final Serializable id = order.getId();
+
+        // Try to fulfill order that does not exist
+        mvc.perform( put( "/api/v1/orders/2" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( 4 ) ) ).andExpect( status().isNotFound() );
+
+        // Try to pay with nothing
+        mvc.perform( put( "/api/v1/orders/" + id ).contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isBadRequest() );
+
+        // Try to pay with insufficient amount
+        mvc.perform( put( "/api/v1/orders/" + id ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( 5 ) ) ).andExpect( status().isBadRequest() );
+
+        // Get response from Mock MVC
+        final String response = mvc
+                .perform( put( "/api/v1/orders/" + id ).contentType( MediaType.APPLICATION_JSON )
+                        .content( TestUtils.asJsonString( 6 ) ) )
+                .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
+
+        // Check if inventory updated
+        inventory = inventoryService.getInventory();
+        for ( final Ingredient ingredient : inventory.getIngredientList() ) {
+        	if ( ingredient.getName().equals("Milk") && ingredient.getUnits() != 44 ) {
+        		fail();
+        	} else if ( ingredient.getName().equals("Black Tea") && ingredient.getUnits() != 48 ) {
+        		fail();
+        	} else if ( ingredient.getName().equals("Coffee") && ingredient.getUnits() != 45 ) {
+        		fail();
+        	}
+        }
+
+        // Check change, contents of response
+        Assertions.assertTrue( response.contains( "0" ) );
+
+        // Try to fulfill an order that is already ready
+        mvc.perform( put( "/api/v1/orders/" + id ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( 6 ) ) ).andExpect( status().isBadRequest() );
+    }
 
     @Test
     @Transactional

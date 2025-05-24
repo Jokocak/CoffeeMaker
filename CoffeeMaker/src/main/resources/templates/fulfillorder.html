@@ -182,6 +182,8 @@
 
 <body ng-app="myApp" ng-controller="recipesCtrl">
     <script>
+    /* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
+    /*<![CDATA[*/ 
         var app = angular.module('myApp', []);
         app.controller('recipesCtrl', function($scope, $http) {
             $scope.selectedOrder = null;
@@ -283,6 +285,8 @@
                     });
             };
         });
+        /* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
+  	  /*]]>*/
     </script>
 
     <div class="content-wrapper">
