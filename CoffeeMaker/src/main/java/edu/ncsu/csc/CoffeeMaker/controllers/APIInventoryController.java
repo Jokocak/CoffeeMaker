@@ -73,7 +73,7 @@ public class APIInventoryController extends APIController {
         final Inventory currentInventory = service.getInventory();
         
         for ( final Ingredient ingredient : inventory.getIngredientList() ) {
-        	currentInventory.
+//        	currentInventory.
         }
         
         
