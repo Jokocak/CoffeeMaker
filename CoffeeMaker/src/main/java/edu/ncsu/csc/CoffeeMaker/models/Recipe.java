@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -27,6 +28,7 @@ public class Recipe extends DomainObject {
     private Long                   id;
 
     /** Recipe name */
+    @Column(unique = true)
     private String                 name;
 
     /** Recipe price */
@@ -75,28 +77,53 @@ public class Recipe extends DomainObject {
     public List<Ingredient> getIngredients () {
         return ingredients;
     }
-
-    public void update ( final Recipe recipe ) throws IllegalArgumentException {
-        if ( !this.getName().equals( recipe.getName() ) ) {
-            throw new IllegalArgumentException( "Name does not match" );
+    
+    public void update(final Recipe recipe) throws IllegalArgumentException {
+        // Validation -- all checks OK
+        if (!this.getName().equals(recipe.getName())) {
+            throw new IllegalArgumentException("Name does not match");
         }
-        if ( recipe.getPrice() <= 0 ) {
-            throw new IllegalArgumentException( "Price must be greater than zero" );
+        if (recipe.getPrice() <= 0) {
+            throw new IllegalArgumentException("Price must be greater than zero");
         }
-        if ( recipe.getIngredients().size() <= 0 ) {
-            throw new IllegalArgumentException( "Recipe must have at least one ingredient" );
+        if (recipe.getIngredients().isEmpty()) {
+            throw new IllegalArgumentException("Recipe must have at least one ingredient");
         }
-        if ( recipe.getIngredients().stream().anyMatch( ( ing ) -> ing.getUnits() <= 0 ) ) {
-            throw new IllegalArgumentException( "Ingredient values must be greater than zero" );
+        if (recipe.getIngredients().stream().anyMatch(ing -> ing.getUnits() <= 0)) {
+            throw new IllegalArgumentException("Ingredient values must be greater than zero");
         }
-        if ( recipe.getIngredients().stream()
-                .anyMatch( ( ing ) -> ing.getName() == null || ing.getName().length() == 0 ) ) {
-            throw new IllegalArgumentException( "All Ingredients must have a name" );
+        if (recipe.getIngredients().stream().anyMatch(ing -> ing.getName() == null || ing.getName().isEmpty())) {
+            throw new IllegalArgumentException("All Ingredients must have a name");
         }
+        
         this.getIngredients().clear();
-        this.getIngredients().addAll( recipe.ingredients );
-        this.setPrice( price );
+        for (Ingredient ing : recipe.getIngredients()) {
+            this.getIngredients().add(new Ingredient(ing));
+        }
+        this.setPrice(recipe.getPrice());
     }
+
+//    public void update ( final Recipe recipe ) throws IllegalArgumentException {
+//        if ( !this.getName().equals( recipe.getName() ) ) {
+//            throw new IllegalArgumentException( "Name does not match" );
+//        }
+//        if ( recipe.getPrice() <= 0 ) {
+//            throw new IllegalArgumentException( "Price must be greater than zero" );
+//        }
+//        if ( recipe.getIngredients().size() <= 0 ) {
+//            throw new IllegalArgumentException( "Recipe must have at least one ingredient" );
+//        }
+//        if ( recipe.getIngredients().stream().anyMatch( ( ing ) -> ing.getUnits() <= 0 ) ) {
+//            throw new IllegalArgumentException( "Ingredient values must be greater than zero" );
+//        }
+//        if ( recipe.getIngredients().stream()
+//                .anyMatch( ( ing ) -> ing.getName() == null || ing.getName().length() == 0 ) ) {
+//            throw new IllegalArgumentException( "All Ingredients must have a name" );
+//        }
+//        this.getIngredients().clear();
+//        this.getIngredients().addAll( recipe.ingredients );
+//        this.setPrice( price );
+//    }
 
     /**
      * removes an ingredient with the given name from this recipe

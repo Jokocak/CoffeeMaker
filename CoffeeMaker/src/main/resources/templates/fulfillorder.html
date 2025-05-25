@@ -195,9 +195,9 @@
             $scope.submissionFailure = false;
 
             // Get recipes
-            $http.get("/api/v1/recipes").then(function(response) {
+/*             $http.get("/api/v1/recipes").then(function(response) {
                 $scope.recipes = response.data;
-            });
+            }); */
 
             // Get pending orders
             $http.get("/api/v1/orders?status=open").then(function(response) {

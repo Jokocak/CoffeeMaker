@@ -12,9 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.transaction.Transactional;
@@ -634,16 +632,7 @@ public class APIOrderTest {
     	// Create Ingredients
         final Ingredient coffeeMatcha = new Ingredient( "Matcha", 5 );
         final Ingredient coffeeCoffee = new Ingredient( "Coffee", 2 );
-        final Ingredient teaMatcha = new Ingredient( "Matcha", 5 );
-        final Ingredient teaSugar = new Ingredient( "Sugar", 2 );
-        final Ingredient teaHoney = new Ingredient( "Honey", 2 );
-        
-        // Save Ingredients to Inventory
-//        ingredientService.save(new Ingredient( "Matcha", 50 ));
-//        ingredientService.save(new Ingredient( "Coffee", 50 ));
-//        ingredientService.save(new Ingredient( "Sugar", 50 ));
-//        ingredientService.save(new Ingredient( "Honey", 50 ));
-        
+
         Inventory inventory = new Inventory();
         inventory.addIngredient("Matcha", 50);
         inventory.addIngredient("Coffee", 50);
@@ -658,27 +647,14 @@ public class APIOrderTest {
         recipeOne.setPrice( 5 );
         recipeOne.addIngredient( coffeeMatcha );
         recipeOne.addIngredient( coffeeCoffee );
-        final Recipe recipeTwo = new Recipe();
-        recipeTwo.setName( "Matcha Coffee" );
-        recipeTwo.setPrice( 5 );
-        recipeTwo.addIngredient( coffeeMatcha );
-        recipeTwo.addIngredient( coffeeCoffee );
         
         // Save recipes
         recipeService.save(recipeOne);
-//        recipeService.save(recipeTwo);
         assertNotNull(recipeService.findByName("Matcha Coffee"));
-//        assertNotNull(recipeService.findByName("Matcha Tea"));
         
         // Create order
         final Map<String, Integer> order = new HashMap<>();
         order.put( "Matcha Coffee", 1 );
-//        order.put( "Matcha Tea", 2 );
-        
-//        final List<String> order = new ArrayList<>();
-//        order.add( "Matcha Coffee" );
-//        order.add( "Matcha Tea" );
-//        order.add( "Matcha Tea" );
         
         // Post order
         MvcResult result = mvc.perform( post( "/api/v1/orders" ).contentType( MediaType.APPLICATION_JSON )
@@ -695,11 +671,5 @@ public class APIOrderTest {
         int payment = 15;
         mvc.perform( put( "/api/v1/orders/" + orderNumber ).contentType( MediaType.APPLICATION_JSON )
                 .content( "" + payment ) ).andExpect( status().isOk() );
-        
-//        Inventory inventoryNow = inventoryService.getInventory();
-//        System.out.println(inventoryNow);
-//        orderService.
-//        orderService.findByActiveFalse();
-//        assertEquals( 1, orderService.findAll().size() );
     }
 }

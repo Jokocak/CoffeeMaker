@@ -1,7 +1,5 @@
 package edu.ncsu.csc.CoffeeMaker.controllers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import edu.ncsu.csc.CoffeeMaker.models.Ingredient;
 import edu.ncsu.csc.CoffeeMaker.models.Inventory;
 import edu.ncsu.csc.CoffeeMaker.models.Order;
 import edu.ncsu.csc.CoffeeMaker.models.Recipe;
@@ -209,34 +206,6 @@ public class APIOrderController extends APIController {
         
         final List<Recipe> recipes = ord.getRecipes();
         
-//        for ( Recipe recipe : recipes ) {
-//        	System.out.println("Recipe Info: " + recipe.toString());
-//        	for ( Ingredient ingredient : recipe.getIngredients() ) {
-//        		System.out.println("Ingredient Info: " + ingredient.toString());
-//        	}
-//        	System.out.println();
-//        }
-//        
-//        Map<String, Integer> ingredients = new HashMap<>();
-//        for ( Recipe recipe : recipes ) {
-//        	Map<String, Integer> recipeIngredients = new HashMap<>();
-//        	
-//        	// Remove Duplicates from this recipe
-//        	for ( Ingredient ingredient : recipe.getIngredients() ) {
-//        		// Make map of ingredients for no duplicates
-//        		recipeIngredients.put(ingredient.getName(), ingredient.getUnits());
-//        	}
-//        	
-//        	// Add to ingredients 
-//        	for ( Entry<String, Integer> e : recipeIngredients.entrySet() ) {
-//        		int prevCount = 0;
-//        		if (ingredients.get(e.getKey()) != null) {
-//        			prevCount = e.getValue();
-//        		}
-//        		ingredients.put(e.getKey(), e.getValue() + prevCount);
-//        	}
-//        } 
-        
 //        final Authentication a = SecurityContextHolder.getContext().getAuthentication();
 //        if ( isAuthorized( a, User.STAFF ) ) {
             if ( ord.isReady() ) {
@@ -322,6 +291,8 @@ public class APIOrderController extends APIController {
         order.setUserName( username );
         order.setTotal( 0 );
         order.setGuest( username.equals( "anonymousUser" ) );
+        
+//        List<Recipe> recipes = recipeService.findAll();
 
         for ( final Entry<String, Integer> e : items.entrySet() ) {
             final Recipe r = recipeService.findByName( e.getKey() );
@@ -331,21 +302,8 @@ public class APIOrderController extends APIController {
             
             
             for ( int i = 0; i < e.getValue(); i++ ) {
-//            	Recipe recipeToAdd = new Recipe();
-//            	recipeToAdd.setName( r.getName() );
-//            	recipeToAdd.setPrice( r.getPrice() );
-//            	for ( Ingredient ing : r.getIngredients() ) {
-//            		Ingredient ingToAdd = new Ingredient();
-//            		ingToAdd.setName( ing.getName() );
-//            		ingToAdd.setUnits( ing.getUnits() );
-//            		recipeToAdd.addIngredient( ingToAdd );
-//            	}            	
-//                order.addRecipe( recipeToAdd );
-//                order.setTotal( order.getTotal() + recipeToAdd.getPrice() );
-            	
-            	
-//                r.getId();
-                order.addRecipe( r );
+            	order.addRecipe( r );
+//                order.addRecipe( new Recipe( r ) );
                 order.setTotal( order.getTotal() + r.getPrice() );
             }
         }
