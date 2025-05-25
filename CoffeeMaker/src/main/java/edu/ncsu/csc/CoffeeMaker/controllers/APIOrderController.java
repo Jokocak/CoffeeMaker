@@ -1,5 +1,7 @@
 package edu.ncsu.csc.CoffeeMaker.controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import edu.ncsu.csc.CoffeeMaker.models.Ingredient;
 import edu.ncsu.csc.CoffeeMaker.models.Inventory;
 import edu.ncsu.csc.CoffeeMaker.models.Order;
 import edu.ncsu.csc.CoffeeMaker.models.Recipe;
@@ -203,9 +206,39 @@ public class APIOrderController extends APIController {
         if ( ord == null ) {
             return new ResponseEntity( HttpStatus.NOT_FOUND );
         }
-        final Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        // if staff, set order to ready
-        if ( isAuthorized( a, User.STAFF ) ) {
+        
+        final List<Recipe> recipes = ord.getRecipes();
+        
+//        for ( Recipe recipe : recipes ) {
+//        	System.out.println("Recipe Info: " + recipe.toString());
+//        	for ( Ingredient ingredient : recipe.getIngredients() ) {
+//        		System.out.println("Ingredient Info: " + ingredient.toString());
+//        	}
+//        	System.out.println();
+//        }
+//        
+//        Map<String, Integer> ingredients = new HashMap<>();
+//        for ( Recipe recipe : recipes ) {
+//        	Map<String, Integer> recipeIngredients = new HashMap<>();
+//        	
+//        	// Remove Duplicates from this recipe
+//        	for ( Ingredient ingredient : recipe.getIngredients() ) {
+//        		// Make map of ingredients for no duplicates
+//        		recipeIngredients.put(ingredient.getName(), ingredient.getUnits());
+//        	}
+//        	
+//        	// Add to ingredients 
+//        	for ( Entry<String, Integer> e : recipeIngredients.entrySet() ) {
+//        		int prevCount = 0;
+//        		if (ingredients.get(e.getKey()) != null) {
+//        			prevCount = e.getValue();
+//        		}
+//        		ingredients.put(e.getKey(), e.getValue() + prevCount);
+//        	}
+//        } 
+        
+//        final Authentication a = SecurityContextHolder.getContext().getAuthentication();
+//        if ( isAuthorized( a, User.STAFF ) ) {
             if ( ord.isReady() ) {
                 return new ResponseEntity( errorResponse( "Order already Made" ), HttpStatus.BAD_REQUEST );
             }
@@ -215,18 +248,21 @@ public class APIOrderController extends APIController {
 
             // Check if enough ingredients for each recipe
             final Inventory inventory = inventoryService.getInventory();
-            final List<Recipe> recipes = ord.getRecipes();
             
-            // Check if enough ingredients for each recipe
+            // Check if enough ingredients
+//            if ( !inventory.enoughIngredients( ingredients ) ) {
+//            	return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
+//            }
             if ( !inventory.enoughIngredients( recipes ) ) {
             	return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
             }
             
             // Use Ingredients
-           for ( final Recipe recipe : recipes ) {
-        	   if ( !inventory.useIngredients( recipe ) ) {
-                    return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
-               }
+//            if ( !inventory.useIngredients( ingredients ) ) {
+//                return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
+//            }
+            if ( !inventory.useIngredients( recipes ) ) {
+                return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
             }
 
             // Update inventory
@@ -236,13 +272,36 @@ public class APIOrderController extends APIController {
             ord.setReady( true );
             service.save( ord );
             return new ResponseEntity( successResponse( Integer.toString( payment - ord.getTotal() ) ), HttpStatus.OK );
-        } // if customer/guest, the order is picked up
-        else {
-            ord.setActive( false );
-            service.save( ord );
-            return new ResponseEntity(
-                    successResponse( "Order number " + ord.getOrderNumber() + " has been picked up." ), HttpStatus.OK );
+//    }
+    }
+    
+    /*
+     * Users and guests pick up order through this endpoint.
+     * 
+     */
+    @PutMapping ( BASE_PATH + "/orders/{orderId}/pickup" )
+    public ResponseEntity pickupOrder ( @PathVariable ( "orderId" ) final Long orderId,
+            @RequestBody ( required = false ) final String username ) {
+
+    	// Check if order exists
+        final Order ord = service.findById( orderId );
+        if ( ord == null ) {
+            return new ResponseEntity( HttpStatus.NOT_FOUND );
         }
+        
+//        final Authentication a = SecurityContextHolder.getContext().getAuthentication(); 
+//        if ( !isAuthorized( a, User.CUSTOMER ) ) {
+//        	
+//        }
+        
+        if ( ord.isReady() ) {
+            return new ResponseEntity( errorResponse( "Order already Made" ), HttpStatus.BAD_REQUEST );
+        }
+            
+        ord.setActive( false );
+        service.save( ord );
+        return new ResponseEntity(
+                successResponse( "Order number " + ord.getOrderNumber() + " has been picked up." ), HttpStatus.OK );
     }
 
     /**
@@ -257,18 +316,35 @@ public class APIOrderController extends APIController {
      */
     @PostMapping ( BASE_PATH + "/orders" )
     public ResponseEntity createOrder ( @RequestBody final Map<String, Integer> items ) {
+//    public ResponseEntity createOrder ( @RequestBody final List<String> items ) {
         final Order order = new Order();
         final String username = SecurityContextHolder.getContext().getAuthentication().getName();
         order.setUserName( username );
         order.setTotal( 0 );
-        order.setGuest( username != null );
+        order.setGuest( username.equals( "anonymousUser" ) );
 
         for ( final Entry<String, Integer> e : items.entrySet() ) {
             final Recipe r = recipeService.findByName( e.getKey() );
             if ( r == null ) {
                 return new ResponseEntity( "Recipe not found", HttpStatus.BAD_REQUEST );
             }
+            
+            
             for ( int i = 0; i < e.getValue(); i++ ) {
+//            	Recipe recipeToAdd = new Recipe();
+//            	recipeToAdd.setName( r.getName() );
+//            	recipeToAdd.setPrice( r.getPrice() );
+//            	for ( Ingredient ing : r.getIngredients() ) {
+//            		Ingredient ingToAdd = new Ingredient();
+//            		ingToAdd.setName( ing.getName() );
+//            		ingToAdd.setUnits( ing.getUnits() );
+//            		recipeToAdd.addIngredient( ingToAdd );
+//            	}            	
+//                order.addRecipe( recipeToAdd );
+//                order.setTotal( order.getTotal() + recipeToAdd.getPrice() );
+            	
+            	
+//                r.getId();
                 order.addRecipe( r );
                 order.setTotal( order.getTotal() + r.getPrice() );
             }

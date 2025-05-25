@@ -43,7 +43,13 @@ public class Ingredient extends DomainObject {
      * parameterless contructor Sets fields to defaults of "no name given" and 0
      */
     public Ingredient () {
-        this( "no name given", 0 ); // TODO change this to something better?
+        this( "no name given", 0 );
+    }
+    
+    // Deep Copy Constructor
+    public Ingredient( Ingredient original ) {
+        this.name = original.getName();
+        this.units = original.getUnits();
     }
 
     @Override

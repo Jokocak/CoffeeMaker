@@ -3,6 +3,9 @@ package edu.ncsu.csc.CoffeeMaker.unit;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,8 +70,11 @@ public class InventoryTest {
         // recipe.setCoffee( 1 );
 
         recipe.setPrice( 5 );
+        
+        List<Recipe> recipes = new ArrayList<>();
+        recipes.add(recipe);
 
-        assertTrue( i.useIngredients( recipe ) );
+        assertTrue( i.useIngredients( recipes ) );
         inventoryService.save( i );
         /*
          * Make sure that all of the inventory fields are now properly updated
@@ -102,8 +108,11 @@ public class InventoryTest {
         // recipe.setCoffee( 1 );
 
         recipe.setPrice( 5 );
+        
+        List<Recipe> recipes = new ArrayList<Recipe>();
+        recipes.add(recipe);
 
-        assertFalse( i.useIngredients( recipe ) );
+        assertFalse( i.useIngredients( recipes ) );
         inventoryService.save( i );
         /*
          * Make sure that all of the inventory fields are now properly updated

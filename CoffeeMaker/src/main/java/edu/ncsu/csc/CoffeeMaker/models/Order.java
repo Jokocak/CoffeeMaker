@@ -48,7 +48,7 @@ public class Order extends DomainObject {
     /** This boolean shows if this Order is for a guest without an account */
     private boolean            guest;
 
-    /** This list contains the recipes ordered on this Order */
+    /** This list contains the recipe ids ordered on this Order */
     @ManyToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
     private final List<Recipe> recipes;
 
@@ -74,6 +74,23 @@ public class Order extends DomainObject {
         setReady( readyForPickUp );
         setGuest( guest );
         recipes = new ArrayList<>();
+    }
+    
+    // Deep Copy Constructor
+    public Order( Order other ) {
+        super(); // If DomainObject has required state
+        this.userName = other.userName;
+        this.orderNumber = other.orderNumber;
+        this.orderTotal = other.orderTotal;
+        this.active = other.active;
+        this.readyForPickUp = other.readyForPickUp;
+        this.guest = other.guest;
+
+        // Deep copy of recipe list
+        this.recipes = new ArrayList<>();
+        for (Recipe r : other.getRecipes()) {
+            this.recipes.add( new Recipe( r ) );
+        }
     }
 
     public String getUserName () {

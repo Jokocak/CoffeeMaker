@@ -46,6 +46,16 @@ public class Recipe extends DomainObject {
         this.name = "";
         ingredients = new ArrayList<Ingredient>();
     }
+    
+    // Deep Copy Constructor
+    public Recipe( Recipe other ) {
+        this.name = other.name;
+        this.price = other.price;
+        this.ingredients = new ArrayList<>();
+        for ( Ingredient ing : other.getIngredients() ) {
+            this.ingredients.add( new Ingredient( ing ) );
+        }
+    }
 
     /**
      * adds an ingredient to the recipe

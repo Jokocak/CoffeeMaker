@@ -1,5 +1,6 @@
 package edu.ncsu.csc.CoffeeMaker.api;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
@@ -11,7 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.transaction.Transactional;
@@ -32,6 +35,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.ncsu.csc.CoffeeMaker.common.TestUtils;
 import edu.ncsu.csc.CoffeeMaker.models.Ingredient;
@@ -620,5 +625,81 @@ public class APIOrderTest {
 
         mvc.perform( get( "/api/v1/orders/status/1" ).contentType( MediaType.APPLICATION_JSON ) );
 
+    }
+    
+    @Test
+    @Transactional
+    @WithMockUser ( authorities = User.MANAGER )
+    public void inventoryErrorTest () throws Exception {
+    	// Create Ingredients
+        final Ingredient coffeeMatcha = new Ingredient( "Matcha", 5 );
+        final Ingredient coffeeCoffee = new Ingredient( "Coffee", 2 );
+        final Ingredient teaMatcha = new Ingredient( "Matcha", 5 );
+        final Ingredient teaSugar = new Ingredient( "Sugar", 2 );
+        final Ingredient teaHoney = new Ingredient( "Honey", 2 );
+        
+        // Save Ingredients to Inventory
+//        ingredientService.save(new Ingredient( "Matcha", 50 ));
+//        ingredientService.save(new Ingredient( "Coffee", 50 ));
+//        ingredientService.save(new Ingredient( "Sugar", 50 ));
+//        ingredientService.save(new Ingredient( "Honey", 50 ));
+        
+        Inventory inventory = new Inventory();
+        inventory.addIngredient("Matcha", 50);
+        inventory.addIngredient("Coffee", 50);
+        inventory.addIngredient("Sugar", 50);
+        inventory.addIngredient("Honey", 50);
+        inventoryService.save(inventory);
+        
+    	
+    	// Create Recipes
+    	final Recipe recipeOne = new Recipe();
+        recipeOne.setName( "Matcha Coffee" );
+        recipeOne.setPrice( 5 );
+        recipeOne.addIngredient( coffeeMatcha );
+        recipeOne.addIngredient( coffeeCoffee );
+        final Recipe recipeTwo = new Recipe();
+        recipeTwo.setName( "Matcha Coffee" );
+        recipeTwo.setPrice( 5 );
+        recipeTwo.addIngredient( coffeeMatcha );
+        recipeTwo.addIngredient( coffeeCoffee );
+        
+        // Save recipes
+        recipeService.save(recipeOne);
+//        recipeService.save(recipeTwo);
+        assertNotNull(recipeService.findByName("Matcha Coffee"));
+//        assertNotNull(recipeService.findByName("Matcha Tea"));
+        
+        // Create order
+        final Map<String, Integer> order = new HashMap<>();
+        order.put( "Matcha Coffee", 1 );
+//        order.put( "Matcha Tea", 2 );
+        
+//        final List<String> order = new ArrayList<>();
+//        order.add( "Matcha Coffee" );
+//        order.add( "Matcha Tea" );
+//        order.add( "Matcha Tea" );
+        
+        // Post order
+        MvcResult result = mvc.perform( post( "/api/v1/orders" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( order ) ) ).andExpect( status().isCreated() ).andReturn();
+        assertEquals( 1, orderService.findAll().size() );
+        
+        // Grab order number
+        String responseContent = result.getResponse().getContentAsString();
+        Order returnedOrder = new ObjectMapper().readValue(responseContent, Order.class);
+        String orderNumber = returnedOrder.getId().toString();
+        System.out.println("Order number: " + orderNumber);
+        
+        // Fulfill order
+        int payment = 15;
+        mvc.perform( put( "/api/v1/orders/" + orderNumber ).contentType( MediaType.APPLICATION_JSON )
+                .content( "" + payment ) ).andExpect( status().isOk() );
+        
+//        Inventory inventoryNow = inventoryService.getInventory();
+//        System.out.println(inventoryNow);
+//        orderService.
+//        orderService.findByActiveFalse();
+//        assertEquals( 1, orderService.findAll().size() );
     }
 }
