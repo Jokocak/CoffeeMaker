@@ -1,217 +1,88 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<title>Add a Recipe</title>
+<title>Welcome to the CSC326 CoffeeMaker</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <style>
-input.ng-valid {
-	background-color: lightgreen;
-}
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #FFF0E5;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+  }
 
-input.ng-dirty.ng-invalid-required,input.ng-dirty.ng-invalid-number {
-	background-color: red;
-}
+  h1 {
+    color: #A52A2A;
+    margin-bottom: 0.5em;
+  }
 
-input.ng-dirty.ng-invalid-min {
-	background-color: yellow;
-}
+  h2 {
+    color: #A52A2A;
+    margin-bottom: 1em;
+  }
 
+  ul {
+    list-style-type: none;
+    padding: 0;
+    max-width: 200px;
+    margin: auto;
+  }
 
+  li {
+    background-color: #fff;
+    margin: 10px 0;
+    border: 1px solid #A52A2A;
+    border-radius: 5px;
+  }
+
+  a {
+    color: #A52A2A;
+    padding: 10px 15px;
+    display: block;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+
+  a:hover {
+    background-color: #f7f7f7;
+  }
+
+  form {
+    margin-top: 20px;
+  }
+
+  button {
+    background-color: #A52A2A;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #8B4513;
+  }
 </style>
-<link rel="stylesheet" href="css/bootstrap.css" />
-<link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
-	<script
-		src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
-
-	<script>
-		/*<![CDATA[*/
-		var app = angular.module('myApp', []);
-		app.controller('addRecipeCtrl', function($scope, $http, $q) {
-			console.log("Hit!");
-
-			$scope.reset = function() {
-				$scope.recipe = {
-					name : '',
-					price : '',
-					coffee : '',
-					milk : '',
-					sugar : '',
-					chocolate : ''
-				};
-				if (undefined != $scope.addRecipeForm) {
-					$scope.addRecipeForm.$setPristine(); // reset Form
-				}
-			}
-
-			$scope.submit = function() {
-				$scope.addRecipe();
-
-				$scope.reset();
-			}
-
-			$scope.addRecipe = function() {
-				$scope.success = false;
-				$scope.failure = false;
-
-				$http.post("/api/v1/recipes", $scope.recipe).then(
-						function(success) {
-							$scope.success = true;
-							$scope.failure = false;
-						}, function(rejection) {
-							console.error("Error while adding recipe");
-						});
-			}
-
-			$scope.reset();
-
-		});
-		/*]]>*/
-	</script>
-
-
-
-	<div ng-app="myApp" class="generic-container ng-cloak"
-		ng-controller="addRecipeCtrl as ctrl">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<span class="lead">Add a Recipe</span>
-			</div>
-
-			<div class="formcontainer">
-				<form ng-submit="submit()" name="addRecipeForm"
-					class="form-horizontal">
-
-					<div class="row">
-						<div class="form-group col-md-12">
-							<label class="col-md-2 control-lable" for="file">Name</label>
-							<div class="col-md-7">
-								<input type="text" ng-model="recipe.name" name="name"
-									class="name form-control input-sm"
-									placeholder="Enter recipe name" required="0" />
-								<div class="has-error" ng-show="addRecipeForm.$dirty">
-									<span ng-show="addRecipeForm.name.$error.required">This
-										is a required field.</span> <span
-										ng-show="addRecipeForm.name.$invalid">This field is
-										invalid.</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="form-group col-md-12">
-							<label class="col-md-2 control-lable" for="file">Price</label>
-							<div class="col-md-7">
-								<input type="number" ng-model="recipe.price" name="price"
-									class="price form-control input-sm"
-									placeholder="Enter recipe price" required="0" min="0"/>
-								<div class="has-error" ng-show="addRecipeForm.$dirty">
-									<span ng-show="addRecipeForm.price.$error.required">This
-										is a required field</span> <span
-										ng-show="addRecipeForm.price.$error.min">Minimum amount
-										is 0</span> <span ng-show="addRecipeForm.price.$invalid">This
-										field is invalid </span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="form-group col-md-12">
-							<label class="col-md-2 control-lable" for="file">Coffee</label>
-							<div class="col-md-7">
-								<input type="number" ng-model="recipe.coffee" name="coffee"
-									class="coffee form-control input-sm"
-									placeholder="Enter amount of coffee" required="0" min="0"/>
-								<div class="has-error" ng-show="addRecipeForm.$dirty">
-									<span ng-show="addRecipeForm.coffee.$error.required">This
-										is a required field.</span> <span
-										ng-show="addRecipeForm.coffee.$error.min">Minimum
-										amount is 0.</span> <span ng-show="addRecipeForm.coffee.$invalid">This
-										field is invalid.</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-
-					<div class="row">
-						<div class="form-group col-md-12">
-							<label class="col-md-2 control-lable" for="file">Milk</label>
-							<div class="col-md-7">
-								<input type="number" ng-model="recipe.milk" name="milk"
-									class="milk form-control input-sm"
-									placeholder="Enter amount of milk" required="0" min="0"/>
-								<div class="has-error" ng-show="addRecipeForm.$dirty">
-									<span ng-show="addRecipeForm.milk.$error.required">This
-										is a required field.</span> <span
-										ng-show="addRecipeForm.milk.$error.min">Minimum amount
-										is 0.</span> <span ng-show="addRecipeForm.milk.$invalid">This
-										field is invalid.</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="form-group col-md-12">
-							<label class="col-md-2 control-lable" for="file">Sugar</label>
-							<div class="col-md-7">
-								<input type="number" ng-model="recipe.sugar" name="sugar"
-									class="sugar form-control input-sm"
-									placeholder="Enter amount of sugar" required="0" min="0"/>
-								<div class="has-error" ng-show="addRecipeForm.$dirty">
-									<span ng-show="addRecipeForm.sugar.$error.required">This
-										is a required field</span> <span
-										ng-show="addRecipeForm.sugar.$error.min">Minimum amount
-										is 0.</span> <span ng-show="addRecipeForm.sugar.$invalid">This
-										field is invalid.</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-
-					<div class="row">
-						<div class="form-group col-md-12">
-							<label class="col-md-2 control-lable" for="file">Chocolate</label>
-							<div class="col-md-7">
-								<input type="number" ng-model="recipe.chocolate" name="chocolate"
-									class="chocolate form-control input-sm"
-									placeholder="Enter amount of chocolate" required="0" min="0"/>
-								<div class="has-error" ng-show="addRecipeForm.$dirty">
-									<span ng-show="addRecipeForm.chocolate.$error.required">This
-										is a required field.</span> <span
-										ng-show="addRecipeForm.chocolate.$error.min">Minimum
-										amount is 0.</span> <span ng-show="addRecipeForm.chocolate.$invalid">This
-										field is invalid.</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-
-					<div class="row">
-						<div class="form-actions floatRight">
-							<input type="submit" value="Submit"
-								class="btn btn-primary btn-sm"
-								ng-disabled="addRecipeForm.$invalid" />
-							<button type="button" ng-click="reset()"
-								class="btn btn-warning btn-sm"
-								ng-disabled="addRecipeForm.$pristine">Reset Form</button>
-						</div>
-					</div>
-				</form>
-			</div>
-			<div ng-show="success">Recipe Created</div>
-			<div ng-show="failure">Error while adding recipe.</div>
-		</div>
-
-		<a href="/index">Home</a>
-	</div>
-
-
-
+  <h1>Coffee Maker</h1>
+  <h2>Recipe Options</h2>
+  <ul>
+  	<li><a href="addrecipe.html">Create Recipe</a></li>
+  	<li><a href="editrecipe.html">Edit Existing Recipe</a></li>
+    
+	<!-- Show Manager link only if the user has the role MANAGER -->
+	<li sec:authorize="hasAuthority('MANAGER')">
+	  <a href="managerhome.html">Go Back</a>
+	</li>
+	
+	<!-- Show Staff link only if the user does NOT have the role MANAGER but does have the role STAFF -->
+	<li sec:authorize="!hasAuthority('MANAGER') and hasAuthority('STAFF')">
+	  <a href="staffhome.html">Go Back</a>
+	</li>
+  </ul>
 </body>
 </html>
