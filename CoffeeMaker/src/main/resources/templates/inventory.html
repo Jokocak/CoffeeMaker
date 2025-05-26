@@ -95,6 +95,7 @@
 		    border-radius: 28px;
 		    box-shadow: 0 6px 30px #dab6ac35, 0 1.5px 20px #ddb7ad20;
 		    padding: 40px 4vw;
+		    margin-top: 100px;
 		    margin-bottom: 38px;
 		    display: flex;
 		    flex-direction: column;
@@ -226,11 +227,21 @@
 		tr:hover td {
 		  background: #faefeb88;
 		}
-		.table-input {
+/* 		.table-input {
 		  width: 72px;
 		  max-width: 90px;
 		  margin: 0 auto;
-		}
+		} */
+/* 		.table-input {
+		  width: 50px;
+		  padding: 4px 6px;
+		  font-size: 0.9em;
+		  text-align: center;
+		  border: 1px solid #ccc;
+		  border-radius: 6px;
+		} */
+
+		
 		
 		.buttons-container {
 		  margin-top: 30px;
@@ -319,85 +330,87 @@
 		        padding: 20px 15px;
 		    }
 		}
+	  @media (max-width: 768px) {
+	    .content-wrapper {
+	      max-width: 100% !important;
+	    }
+	  }
+	input.table-input[type="number"] {
+	  width: 100px;
+	  padding: 4px 6px;
+	  font-size: 0.95em;
+	  border: 1px solid #ccc;
+	  border-radius: 8px;
+	  margin-top: 0;
+	}
+	  
     </style>
 </head>
 <body>
 <div class="main-center" ng-app="inventoryApp" ng-controller="mainController">
-    <!-- Tab switching buttons in fixed position -->
-    <div class="tabs">
-        <button class="tab-btn" ng-class="{'active': tab=='add'}" ng-click="tab='add'">Add Ingredient</button>
-        <button class="tab-btn" ng-class="{'active': tab=='inv'}" ng-click="tab='inv'">Update Inventory</button>
+<div class="content-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px;">
+  <!-- Add Ingredient Panel -->
+  <div class="content-wrapper" style="flex: 1; min-width: 320px; max-width: 500px;">
+    <h1>Add Ingredient</h1>
+    <form ng-submit="submitIngredient()" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+      <div class="form-group">
+        <label for="ingredientName">Ingredient Name</label>
+        <input type="text" id="ingredientName" name="ingredientName"
+               ng-model="ingredientName" placeholder="Enter ingredient name" required>
+      </div>
+      <div class="form-group">
+        <label for="inventoryAmount">Initial Amount</label>
+        <input type="number" id="inventoryAmount" name="inventoryAmount"
+               ng-model="ingredientAmount" placeholder="Enter initial amount" min="0" required>
+      </div>
+      <p ng-class="{'red-text': addSubmitStatusClass === 'error', 'green-text': addSubmitStatusClass === 'success'}">
+        {{addSubmitStatus}}
+      </p>
+      <button class="submit-button" type="submit">Add Ingredient</button>
+    </form>
+  </div>
+
+  <!-- Update Inventory Panel -->
+  <div class="content-wrapper" style="flex: 1; min-width: 320px; max-width: 700px;">
+    <h1>Update Inventory</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Ingredient</th>
+          <th>Current Stock</th>
+          <th>Add Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="ing in ingredients">
+          <td>{{ing.name}}</td>
+          <td>{{ing.units}}</td>
+          <td>
+            <input type="number" class="table-input" ng-model="ing.stockAmount" min="0" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="message-container">
+      <p ng-class="{'red-text': invSubmitStatusClass === 'error', 'green-text': invSubmitStatusClass === 'success'}">
+        {{invSubmitStatus}}
+      </p>
+      <p ng-class="{'red-text': invSubmitStatusClass === 'error', 'green-text': invSubmitStatusClass === 'success'}"
+         ng-repeat="change in changes">
+        {{change}}
+      </p>
     </div>
+    <div class="buttons-container">
+      <button class="save-btn" type="button" ng-click="submitInventory()">Save</button>
+    </div>
+  </div>
+</div>
 
-    <div class="content-container">
-        <!-- Add Ingredient View -->
-        <div class="content-wrapper" ng-if="tab=='add'">
-            <h1>Add Ingredient</h1>
-            <form ng-submit="submitIngredient()" style="width:100%;display:flex;flex-direction:column;align-items:center;">
-                <div class="form-group">
-                    <label for="ingredientName">Ingredient Name</label>
-                    <input type="text"
-                        id="ingredientName"
-                        name="ingredientName"
-                        ng-model="ingredientName"
-                        placeholder="Enter ingredient name"
-                        required>
-                </div>
-                <div class="form-group">
-                    <label for="inventoryAmount">Initial Amount</label>
-                    <input type="number"
-                        id="inventoryAmount"
-                        name="inventoryAmount"
-                        ng-model="ingredientAmount"
-                        placeholder="Enter initial amount"
-                        min="0"
-                        required>
-                </div>
-                <p ng-class="{'red-text': addSubmitStatusClass === 'error', 'green-text': addSubmitStatusClass === 'success'}">
-                    {{addSubmitStatus}}
-                </p>
-                <button class="submit-button" type="submit">Add Ingredient</button>
-            </form>
-            <div>
-                <a href="/index" class="home-link">Return Home</a>
-            </div>
-        </div>
+<div style="margin-top: 10px; text-align: center;">
+  <button class="return-btn" type="button" ng-click="returnHome()">Return Home</button>
+</div>
 
-        <!-- Update Inventory View -->
-        <div class="content-wrapper" ng-if="tab=='inv'">
-            <h1>Update Inventory</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ingredient</th>
-                        <th>Current Stock</th>
-                        <th>Add Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="ing in ingredients">
-                        <td>{{ing.name}}</td>
-                        <td>{{ing.units}}</td>
-                        <td>
-                            <input type="number" class="table-input" ng-model="ing.stockAmount" min="0" />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="message-container">
-                <p ng-class="{'red-text': invSubmitStatusClass === 'error', 'green-text': invSubmitStatusClass === 'success'}">
-                    {{invSubmitStatus}}
-                </p>
-                <p ng-class="{'red-text': invSubmitStatusClass === 'error', 'green-text': invSubmitStatusClass === 'success'}"
-                   ng-repeat="change in changes">
-                    {{change}}
-                </p>
-            </div>
-            <div class="buttons-container">
-                <button class="return-btn" type="button" ng-click="returnHome()">Return Home</button>
-                <button class="save-btn" type="button" ng-click="submitInventory()">Save</button>
-            </div>
-        </div>
+
     </div>
 </div>
     <!-- Angular code -->
@@ -428,19 +441,6 @@
             };
             $scope.fetchInventory();
 
-            $scope.$watch('tab', function(newVal) {
-                if (newVal === 'inv') {
-                    $scope.fetchInventory();
-                    $scope.invSubmitStatus = '';
-                    $scope.changes = [];
-                }
-                if (newVal === 'add') {
-                    $scope.addSubmitStatus = '';
-                    $scope.ingredientName = '';
-                    $scope.ingredientAmount = '';
-                }
-            });
-
             $scope.submitIngredient = function() {
                 var name = $scope.ingredientName && $scope.ingredientName.trim();
                 var amount = parseInt(Number($scope.ingredientAmount));
@@ -469,6 +469,9 @@
                         else
                             $scope.addSubmitStatus = "Failed to add ingredient. Please try again.";
                     });
+                
+                $scope.ingredientName   = '';
+                $scope.ingredientAmount = null;
             };
 
             $scope.submitInventory = function() {
