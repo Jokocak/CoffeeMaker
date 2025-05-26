@@ -227,10 +227,10 @@
 	  <br/>
 	  <br/>
 	  <br/>
-	  <script>function returnHome() {window.location.href = '/';}</script>
+	  <script>function goBack() {window.location.href = '/recipe.html';}</script>
 	  <div class="center">
 	    <p ng-class="{'red-text': submitStatusClass === 'error', 'green-text': submitStatusClass === 'success'}">{{submitStatus}}</p>
-			<button type="button" onClick="returnHome()">Cancel</button>
+			<button type="button" onClick="goBack()">Go Back</button>
 			<button type="button" ng-click="submit()">Save Recipe</button>
 		</div>
 	  
