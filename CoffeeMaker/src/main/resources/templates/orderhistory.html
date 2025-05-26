@@ -1,69 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="orderHistoryApp">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Order History</title>
-<style>
-  body {
-    font-family: 'Arial', sans-serif;
-    background-color: #FFF0E5;
-    margin: 0;
-    padding: 20px;
-  }
+  <meta charset="UTF-8">
+  <title>Order History</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #FFF0E5;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
 
-  .order-history-header {
-    text-align: center;
-    color: #A52A2A;
-    margin-bottom: 20px;
-  }
+    h1 {
+      color: #A52A2A;
+      margin-bottom: 20px;
+    }
 
-  .order-history-section {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: auto;
-  }
+    .table-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
 
-  .order-item {
-    border-bottom: 1px solid #ccc;
-    padding: 10px 0;
-    display: flex;
-    justify-content: space-between;
-  }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
 
-  .order-item:last-child {
-    border-bottom: none;
-  }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
 
-  .order-detail {
-    color: #333;
-  }
+    th {
+      background-color: #A52A2A;
+      color: white;
+    }
 
-  .order-status {
-    color: #4CAF50; /* Green color for fulfilled orders */
-    font-weight: bold;
-  }
-</style>
+    .green {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .orange {
+      color: #FFA500;
+      font-weight: bold;
+    }
+
+    .gray {
+      color: #999;
+    }
+
+    a {
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
-<body>
+<body ng-controller="orderController">
 
-<div class="order-history-header">
   <h1>Order History</h1>
-</div>
 
-<div class="order-history-section">
-  <!-- Dummy data for order history -->
-  <div class="order-item">
-    <span class="order-detail">Order #10293</span>
-    <span class="order-status">Fulfilled</span>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>User</th>
+          <th>Guest?</th>
+          <th>Recipes</th>
+          <th>Total ($)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="order in orders">
+          <td>{{ order.orderNumber }}</td>
+          <td>{{ order.userName || 'N/A' }}</td>
+          <td>{{ order.guest ? 'Yes' : 'No' }}</td>
+		  <td>
+		    <ul style="list-style: none; padding: 0; margin: 0;">
+		      <li ng-repeat="(recipeName, count) in groupRecipes(order.recipes)">
+		        {{ count }}x {{ recipeName }}
+		      </li>
+		    </ul>
+		  </td>
+          <td>${{ order.total }}</td>
+          <td>
+            <span ng-if="order.readyForPickUp" class="green">Ready</span>
+            <span ng-if="!order.readyForPickUp && order.active" class="orange">In Progress</span>
+            <span ng-if="!order.readyForPickUp && !order.active" class="gray">Pending</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <a href="/order.html">Go Back</a>
   </div>
-  <!-- Repeat for each fulfilled order -->
-</div>
 
-<br /> <a href="/order.html">Go Back</a>
+  <script>
+    var app = angular.module('orderHistoryApp', []);
+    app.controller('orderController', function($scope, $http) {
+      $scope.orders = [];
 
+      $http.get('/api/v1/orders').then(function(response) {
+        $scope.orders = response.data;
+        console.log($scope.orders);
+      }, function(error) {
+        console.error("Error fetching orders:", error);
+      });
+      
+      $scope.groupRecipes = function(recipes) {
+	  	  const grouped = {};
+	  	  angular.forEach(recipes, function(recipe) {
+	  	    const name = recipe.name;
+	  	    if (grouped[name]) {
+	  	      grouped[name]++;
+	  	    } else {
+	  	      grouped[name] = 1;
+	  	    }
+	  	  });
+	  	  return grouped;
+      };
+    });
+  </script>
 </body>
 </html>
