@@ -69,11 +69,20 @@
 </head>
 <body>
   <h1>Coffee Maker</h1>
-  <h2>Available Options for Manager</h2>
+  <h2>Recipe Options</h2>
   <ul>
   	<li><a href="addrecipe.html">Create Recipe</a></li>
   	<li><a href="editrecipe.html">Edit Existing Recipe</a></li>
-    <li><a href="managerhome.html">Go Back</a></li>
+    
+	<!-- Show Manager link only if the user has the role MANAGER -->
+	<li sec:authorize="hasAuthority('MANAGER')">
+	  <a href="managerhome.html">Go Back</a>
+	</li>
+	
+	<!-- Show Staff link only if the user does NOT have the role MANAGER but does have the role STAFF -->
+	<li sec:authorize="!hasAuthority('MANAGER') and hasAuthority('STAFF')">
+	  <a href="staffhome.html">Go Back</a>
+	</li>
   </ul>
 </body>
 </html>
