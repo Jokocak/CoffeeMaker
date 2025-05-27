@@ -3,6 +3,7 @@ package edu.ncsu.csc.CoffeeMaker.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.persistence.CascadeType;
@@ -117,7 +118,7 @@ public class Inventory extends DomainObject {
         return true;
     }
     
-    public boolean enoughIngredients( final List<Recipe> recipes ) {
+    public boolean enoughIngredients( final Set<Recipe> recipes ) {
     	// Map ingredient name to position in ingredients list
     	final TreeMap<String, Integer> idxMap = new TreeMap<String, Integer>();
     	for ( int i = 0; i < ingredients.size(); i++ ) {
@@ -190,7 +191,7 @@ public class Inventory extends DomainObject {
      *            recipe to make
      * @return true if recipe is made.
      */
-    public boolean useIngredients(final List<Recipe> recipes) {
+    public boolean useIngredients(final Set<Recipe> recipes) {
         // Map ingredient name -> total needed
         final TreeMap<String, Integer> idxMap = new TreeMap<>();
         for (int i = 0; i < ingredients.size(); i++) {

@@ -2,9 +2,13 @@ package edu.ncsu.csc.CoffeeMaker.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -50,8 +54,8 @@ public class Order extends DomainObject {
 //    @ManyToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
 //    private final List<Recipe> recipes;
     
-    @ManyToMany
-    private final List<Recipe> recipes;
+    @ManyToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+    private final Set<Recipe> recipes;
 
     /**
      * An empty constructor for Hibernate to use when loading objects from the
@@ -59,7 +63,7 @@ public class Order extends DomainObject {
      */
     public Order () {
         super();
-        recipes = new ArrayList<>();
+        recipes = new HashSet<>();
     }
 
     /**
@@ -74,7 +78,7 @@ public class Order extends DomainObject {
         setActive( active );
         setReady( readyForPickUp );
         setGuest( guest );
-        recipes = new ArrayList<>();
+        recipes = new HashSet<>();
     }
     
     // Deep Copy Constructor
@@ -88,7 +92,7 @@ public class Order extends DomainObject {
         this.guest = other.guest;
 
         // Deep copy of recipe list
-        this.recipes = new ArrayList<>();
+        this.recipes = new HashSet<>();
         for (Recipe r : other.getRecipes()) {
             this.recipes.add( new Recipe( r ) );
         }
@@ -151,7 +155,7 @@ public class Order extends DomainObject {
         this.orderNumber = hashCode() % 1000;
     }
 
-    public List<Recipe> getRecipes () {
+    public Set<Recipe> getRecipes () {
         return recipes;
     }
 

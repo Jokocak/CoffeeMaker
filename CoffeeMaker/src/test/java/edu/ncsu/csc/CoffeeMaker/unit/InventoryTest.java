@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +73,7 @@ public class InventoryTest {
 
         recipe.setPrice( 5 );
         
-        List<Recipe> recipes = new ArrayList<>();
+        Set<Recipe> recipes = new HashSet<>();
         recipes.add(recipe);
 
         assertTrue( i.useIngredients( recipes ) );
@@ -109,7 +111,7 @@ public class InventoryTest {
 
         recipe.setPrice( 5 );
         
-        List<Recipe> recipes = new ArrayList<Recipe>();
+        Set<Recipe> recipes = new HashSet<Recipe>();
         recipes.add(recipe);
 
         assertFalse( i.useIngredients( recipes ) );
