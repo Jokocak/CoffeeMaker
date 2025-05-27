@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="orderHistoryApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Order History</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #FFF0E5;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #A52A2A;
+      margin-bottom: 20px;
+    }
+
+    .table-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #A52A2A;
+      color: white;
+    }
+
+    .green {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .orange {
+      color: #FFA500;
+      font-weight: bold;
+    }
+
+    .gray {
+      color: #999;
+    }
+
+    a {
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body ng-controller="orderController">
+
+  <h1>Order History</h1>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Recipes</th>
+          <th>Total ($)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="order in orders">
+          <td>{{ order.orderNumber }}</td>
+		  <td>
+		    <ul style="list-style: none; padding: 0; margin: 0;">
+		      <li ng-repeat="(recipeName, count) in groupRecipes(order.recipes)">
+		        {{ count }}x {{ recipeName }}
+		      </li>
+		    </ul>
+		  </td>
+          <td>${{ order.total }}</td>
+          <td>
+            <span ng-if="!order.ready && order.active" class="gray">Order in Progress</span>
+            <span ng-if="order.ready && order.active" class="orange">Ready for Pickup</span>
+            <span ng-if="order.ready && !order.active" class="green">Fulfilled</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <a href="/customerhome.html">Go Back</a>
+  </div>
+
+  <script>
+    var app = angular.module('orderHistoryApp', []);
+    app.controller('orderController', function($scope, $http) {
+      $scope.orders = [];
+
+      $http.get('/api/v1/orders').then(function(response) {
+        $scope.orders = response.data;
+        console.log($scope.orders);
+      }, function(error) {
+        console.error("Error fetching orders:", error);
+      });
+      
+      $scope.groupRecipes = function(recipes) {
+	  	  const grouped = {};
+	  	  angular.forEach(recipes, function(recipe) {
+	  	    const name = recipe.name;
+	  	    if (grouped[name]) {
+	  	      grouped[name]++;
+	  	    } else {
+	  	      grouped[name] = 1;
+	  	    }
+	  	  });
+	  	  return grouped;
+      };
+    });
+  </script>
+</body>
+</html>

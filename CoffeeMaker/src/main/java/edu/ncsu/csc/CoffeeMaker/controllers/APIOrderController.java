@@ -100,9 +100,14 @@ public class APIOrderController extends APIController {
      */
     @GetMapping ( BASE_PATH + "/orders" )
     public List<Order> getOrders ( @RequestParam ( name = "status", required = false ) final String status ) {
-        final Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        if ( isAuthorized( a, User.CUSTOMER ) && !isAuthorized( a, User.STAFF ) ) {
+    	final Authentication a = SecurityContextHolder.getContext().getAuthentication();
+    	
+        if ( status != null && isAuthorized( a, User.CUSTOMER ) && !isAuthorized( a, User.STAFF ) && status.equals( "active" ) ) {
             return service.findByActiveAndUserName( true, a.getName() );
+        }
+    	
+        if ( isAuthorized( a, User.CUSTOMER ) && !isAuthorized( a, User.STAFF ) ) {
+            return service.findByUserName( a.getName() );
         }
 
         if ( !isAuthorized( a, User.STAFF ) ) {
@@ -123,7 +128,6 @@ public class APIOrderController extends APIController {
         else {
             return null;
         }
-
     }
 
     /**

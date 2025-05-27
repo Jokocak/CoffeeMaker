@@ -283,4 +283,9 @@ public class MappingController {
     public String customerorder ( final Model model ) {
         return "customerorder";
     }
+    
+    @GetMapping ( { "/customerorderhistory", "/customerorderhistory.html" } )
+    public String customerorderhistory ( final Model model ) {
+        return "customerorderhistory";
+    }
 }

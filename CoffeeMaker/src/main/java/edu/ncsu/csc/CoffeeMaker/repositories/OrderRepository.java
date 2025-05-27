@@ -59,4 +59,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
      * @return a list of all orders in the db where these apply, null if none
      */
     List<Order> findByActiveAndUserName ( boolean active, String userName );
+    
+    /**
+     * finds all orders where the username matches the username.
+     *
+     * @param userName
+     *            the username of the orders to find
+     * @return a list of all orders in the db where these apply, null if none
+     */
+    List<Order> findByUserName ( String userName );
 }

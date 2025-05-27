@@ -132,7 +132,9 @@ body {
       $scope.orderNumber = $scope.getUrlParams().orderNumber;
       $scope.orders = [];
       if(typeof $scope.orderNumber === "undefined") {
-        $http.get('/api/v1/orders').then(
+    	  $http.get('/api/v1/orders', {
+    		  params: { status: 'active' }
+    		}).then(
           function(success) {
             $scope.orders = success.data;
             $scope.checkOrderStatus();
@@ -166,7 +168,7 @@ body {
   </script>
 
 <div class="orders-header">
-  <h2>Orders</h2>
+  <h2>Orders to Pickup</h2>
 </div>
 
 <!-- This section needs to hold current orders, and whether they're ready or not. -->
