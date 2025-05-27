@@ -38,7 +38,9 @@ public class Recipe extends DomainObject {
     /**
      * field to hold all Ingredients in a Recipe
      */
-    @OneToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+//    @OneToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true )
+//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private final List<Ingredient> ingredients;
 
     /**
@@ -102,28 +104,6 @@ public class Recipe extends DomainObject {
         }
         this.setPrice(recipe.getPrice());
     }
-
-//    public void update ( final Recipe recipe ) throws IllegalArgumentException {
-//        if ( !this.getName().equals( recipe.getName() ) ) {
-//            throw new IllegalArgumentException( "Name does not match" );
-//        }
-//        if ( recipe.getPrice() <= 0 ) {
-//            throw new IllegalArgumentException( "Price must be greater than zero" );
-//        }
-//        if ( recipe.getIngredients().size() <= 0 ) {
-//            throw new IllegalArgumentException( "Recipe must have at least one ingredient" );
-//        }
-//        if ( recipe.getIngredients().stream().anyMatch( ( ing ) -> ing.getUnits() <= 0 ) ) {
-//            throw new IllegalArgumentException( "Ingredient values must be greater than zero" );
-//        }
-//        if ( recipe.getIngredients().stream()
-//                .anyMatch( ( ing ) -> ing.getName() == null || ing.getName().length() == 0 ) ) {
-//            throw new IllegalArgumentException( "All Ingredients must have a name" );
-//        }
-//        this.getIngredients().clear();
-//        this.getIngredients().addAll( recipe.ingredients );
-//        this.setPrice( price );
-//    }
 
     /**
      * removes an ingredient with the given name from this recipe

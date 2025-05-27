@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.ncsu.csc.CoffeeMaker.models.Order;
 import edu.ncsu.csc.CoffeeMaker.models.Recipe;
 import edu.ncsu.csc.CoffeeMaker.models.User;
+import edu.ncsu.csc.CoffeeMaker.services.OrderService;
 import edu.ncsu.csc.CoffeeMaker.services.RecipeService;
 
 /**
@@ -48,6 +50,9 @@ public class APIRecipeController extends APIController {
      */
     @Autowired
     private RecipeService service;
+    
+    @Autowired
+    private OrderService orderService;
 
     /**
      * REST API method to provide GET access to all recipes in the system
@@ -197,8 +202,18 @@ public class APIRecipeController extends APIController {
         if ( null == recipe ) {
             return new ResponseEntity( errorResponse( "No recipe found for name " + name ), HttpStatus.NOT_FOUND );
         }
-        service.delete( recipe );
 
+        
+        List<Order> orders = orderService.findAll();
+        
+        for (Order o : orders) {
+            if (o.getRecipes().contains(recipe)) {
+                o.getRecipes().remove(recipe);
+                orderService.save(o);
+            }
+        }
+
+        service.delete( recipe );
         return new ResponseEntity( successResponse( name + " was deleted successfully" ), HttpStatus.OK );
     }
 }

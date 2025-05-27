@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -208,7 +209,7 @@ public class APIOrderController extends APIController {
             return new ResponseEntity( HttpStatus.NOT_FOUND );
         }
         
-        final List<Recipe> recipes = ord.getRecipes();
+        final Set<Recipe> recipes = ord.getRecipes();
         
         final Authentication a = SecurityContextHolder.getContext().getAuthentication();
         if ( isAuthorized( a, User.STAFF ) ) {
