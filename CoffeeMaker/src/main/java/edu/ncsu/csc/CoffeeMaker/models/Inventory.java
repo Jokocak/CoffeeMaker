@@ -2,6 +2,7 @@ package edu.ncsu.csc.CoffeeMaker.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.persistence.CascadeType;
@@ -49,6 +50,14 @@ public class Inventory extends DomainObject {
         this.ingredients = new ArrayList<Ingredient>();
         for ( final Ingredient igt : ingredients ) {
             this.ingredients.add( igt );
+        }
+    }
+    
+    // Constructor for deep copy
+    public Inventory( Inventory other ) {
+        this.ingredients = new ArrayList<>();
+        for ( Ingredient ing : other.getIngredientList() ) {
+            this.ingredients.add( new Ingredient( ing ) );
         }
     }
 
@@ -107,6 +116,71 @@ public class Inventory extends DomainObject {
         }
         return true;
     }
+    
+    public boolean enoughIngredients( final List<Recipe> recipes ) {
+    	// Map ingredient name to position in ingredients list
+    	final TreeMap<String, Integer> idxMap = new TreeMap<String, Integer>();
+    	for ( int i = 0; i < ingredients.size(); i++ ) {
+    		idxMap.put( ingredients.get( i ).getName(), i);
+    	}
+    	
+    	// Iterate through each recipe tracking the ingredients included
+    	final TreeMap<String, Integer> neededIngredients = new TreeMap<String, Integer>();
+    	for ( Recipe recipe : recipes ) {
+    		for ( Ingredient i : recipe.getIngredients() ) {
+    			// Update ingredient count or add ingredient to map
+    			if (neededIngredients.get(i.getName()) == null) {
+    				neededIngredients.put(i.getName(), i.getUnits());
+    			} else {
+    				neededIngredients.put(i.getName(), neededIngredients.get(i.getName()) + i.getUnits());
+    			}
+    		}
+    	}
+    	
+    	// Check if we have enough of each ingredient
+    	for ( final String ingredient : neededIngredients.keySet() ) {
+    		Integer ingredientIdx = idxMap.get( ingredient );
+    		
+    		// Check if ingredient exists
+    		if ( ingredientIdx == null ) {
+    			return false;
+    		}
+    		
+    		// Check if we have enough ingredients for this item
+    		if ( ingredients.get( ingredientIdx ).getUnits() < neededIngredients.get(ingredient)) {
+    			return false;
+    		}
+    	}
+    	
+    	// Return true if made down here
+    	return true;
+    }
+    
+    public boolean enoughIngredients( final Map<String, Integer> ingredientList ) {
+    	// Map ingredient name to position in ingredients list
+    	final TreeMap<String, Integer> idxMap = new TreeMap<String, Integer>();
+    	for ( int i = 0; i < ingredients.size(); i++ ) {
+    		idxMap.put( ingredients.get( i ).getName(), i);
+    	}
+    	
+    	// Check if we have enough of each ingredient
+    	for ( final String ingredient : ingredientList.keySet() ) {
+    		Integer ingredientIdx = idxMap.get( ingredient );
+    		
+    		// Check if ingredient exists
+    		if ( ingredientIdx == null ) {
+    			return false;
+    		}
+    		
+    		// Check if we have enough ingredients for this item
+    		if ( ingredients.get( ingredientIdx ).getUnits() < ingredientList.get(ingredient)) {
+    			return false;
+    		}
+    	}
+    	
+    	// Return true if made down here
+    	return true;
+    }
 
     /**
      * Removes the ingredients used to make the specified recipe. Assumes that
@@ -116,27 +190,59 @@ public class Inventory extends DomainObject {
      *            recipe to make
      * @return true if recipe is made.
      */
-    public boolean useIngredients ( final Recipe r ) {
-
-        if ( enoughIngredients( r ) ) {
-            // this map initiation is done redundantly, changing the
-            // enoughIngredients() function to accept this map would make this
-            // faster
-            // mapping necessary to avoid quadratic time complexity
-
-            final TreeMap<String, Integer> idxMap = new TreeMap<String, Integer>();
-            for ( int i = 0; i < ingredients.size(); i++ ) {
-                idxMap.put( ingredients.get( i ).getName(), i );
-            }
-
-            for ( final Ingredient recipeIgt : r.getIngredients() ) {
-                final Integer idx = idxMap.get( recipeIgt.getName() );
-                final Ingredient invIgt = ingredients.get( idx );
-                invIgt.setUnits( invIgt.getUnits() - recipeIgt.getUnits() );
-            }
-            return true;
+    public boolean useIngredients(final List<Recipe> recipes) {
+        // Map ingredient name -> total needed
+        final TreeMap<String, Integer> idxMap = new TreeMap<>();
+        for (int i = 0; i < ingredients.size(); i++) {
+            idxMap.put(ingredients.get(i).getName(), i);
         }
-        return false;
+
+        final TreeMap<String, Integer> neededIngredients = new TreeMap<>();
+        for (Recipe recipe : recipes) {
+            for (Ingredient i : recipe.getIngredients()) {
+                neededIngredients.put(i.getName(), neededIngredients.getOrDefault(i.getName(), 0) + i.getUnits());
+            }
+        }
+
+        // Check sufficiency
+        for (final String ingredient : neededIngredients.keySet()) {
+            Integer idx = idxMap.get(ingredient);
+            if (idx == null || ingredients.get(idx).getUnits() < neededIngredients.get(ingredient)) {
+                return false;
+            }
+        }
+
+        // Deduct
+        for (final String ingredient : neededIngredients.keySet()) {
+            Integer idx = idxMap.get(ingredient);
+            Ingredient invIgt = ingredients.get(idx);
+            invIgt.setUnits(invIgt.getUnits() - neededIngredients.get(ingredient));
+        }
+        return true;
+    }
+    
+    public boolean useIngredients( final Map<String, Integer> ingredientList ) {
+        // Map ingredient name -> total needed
+        final TreeMap<String, Integer> idxMap = new TreeMap<>();
+        for (int i = 0; i < ingredients.size(); i++) {
+            idxMap.put(ingredients.get(i).getName(), i);
+        }
+
+        // Check sufficiency
+        for (final String ingredient : ingredientList.keySet()) {
+            Integer idx = idxMap.get(ingredient);
+            if (idx == null || ingredients.get(idx).getUnits() < ingredientList.get(ingredient)) {
+                return false;
+            }
+        }
+
+        // Deduct
+        for (final String ingredient : ingredientList.keySet()) {
+            Integer idx = idxMap.get(ingredient);
+            Ingredient invIgt = ingredients.get(idx);
+            invIgt.setUnits(invIgt.getUnits() - ingredientList.get(ingredient));
+        }
+        return true;
     }
 
     /**

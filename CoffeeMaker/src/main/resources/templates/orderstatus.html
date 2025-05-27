@@ -131,10 +131,10 @@ body {
       //stuff that runs on page-load starts here
       $scope.orderNumber = $scope.getUrlParams().orderNumber;
       $scope.orders = [];
-      console.log($scope.orderNumber);
-      console.log(typeof $scope.orderNumber);
       if(typeof $scope.orderNumber === "undefined") {
-        $http.get('/api/v1/orders').then(
+    	  $http.get('/api/v1/orders', {
+    		  params: { status: 'active' }
+    		}).then(
           function(success) {
             $scope.orders = success.data;
             $scope.checkOrderStatus();
@@ -154,10 +154,9 @@ body {
       
       $scope.pickUp = function(index) {
         $scope.orders[index].active = false;
-        $http.put('/api/v1/orders/' + $scope.orders[index].id).then(
+        $http.put('/api/v1/orders/' + $scope.orders[index].id + '/pickup').then(
           function(success) {
             $scope.orders.splice(index, 1);
-            $scope.apply();
             alert("Order Picked Up!");
           }, function(failure) {
             //do nothing.
@@ -169,7 +168,7 @@ body {
   </script>
 
 <div class="orders-header">
-  <h2>Orders</h2>
+  <h2>Orders to Pickup</h2>
 </div>
 
 <!-- This section needs to hold current orders, and whether they're ready or not. -->

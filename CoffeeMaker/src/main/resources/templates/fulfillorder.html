@@ -182,6 +182,8 @@
 
 <body ng-app="myApp" ng-controller="recipesCtrl">
     <script>
+    /* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
+    /*<![CDATA[*/ 
         var app = angular.module('myApp', []);
         app.controller('recipesCtrl', function($scope, $http) {
             $scope.selectedOrder = null;
@@ -193,9 +195,9 @@
             $scope.submissionFailure = false;
 
             // Get recipes
-            $http.get("/api/v1/recipes").then(function(response) {
+/*             $http.get("/api/v1/recipes").then(function(response) {
                 $scope.recipes = response.data;
-            });
+            }); */
 
             // Get pending orders
             $http.get("/api/v1/orders?status=open").then(function(response) {
@@ -283,6 +285,8 @@
                     });
             };
         });
+        /* Without these comments, Thymeleaf will try to parse the Javascript as XML and break itself sometimes */
+  	  /*]]>*/
     </script>
 
     <div class="content-wrapper">
@@ -343,7 +347,7 @@
             {{lowInventoryMessage}}
         </div>
 
-        <a href="/index" class="home-link">Return Home</a>
+        <a href="/order.html" class="home-link">Go Back</a>
     </div>
 </body>
 </html>

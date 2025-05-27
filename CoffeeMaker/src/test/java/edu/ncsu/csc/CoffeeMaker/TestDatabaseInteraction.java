@@ -41,7 +41,6 @@ public class TestDatabaseInteraction {
      * Sets up the tests.
      */
     @BeforeEach
-    @Transactional
     public void setup () {
         inventoryService.deleteAll();
         recipeService.deleteAll();

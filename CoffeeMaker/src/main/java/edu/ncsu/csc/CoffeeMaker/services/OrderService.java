@@ -85,4 +85,15 @@ public class OrderService extends Service<Order, Long> {
     public List<Order> findByActiveAndUserName ( final boolean active, final String userName ) {
         return orderRepository.findByActiveAndUserName( active, userName );
     }
+    
+    /**
+     * find all orders meeting username conditions
+     *
+     * @param userName
+     *            the username to search for
+     * @return a list of all orders meeting param conditions in the db
+     */
+    public List<Order> findByUserName ( final String userName ) {
+        return orderRepository.findByUserName( userName );
+    }
 }

@@ -278,5 +278,14 @@ public class MappingController {
     public String privacypolicy ( final Model model ) {
         return "privacypolicy";
     }
-
+    
+    @GetMapping ( { "/customerorder", "/customerorder.html" } )
+    public String customerorder ( final Model model ) {
+        return "customerorder";
+    }
+    
+    @GetMapping ( { "/customerorderhistory", "/customerorderhistory.html" } )
+    public String customerorderhistory ( final Model model ) {
+        return "customerorderhistory";
+    }
 }

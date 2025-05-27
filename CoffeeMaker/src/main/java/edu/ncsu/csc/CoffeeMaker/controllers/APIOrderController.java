@@ -100,9 +100,14 @@ public class APIOrderController extends APIController {
      */
     @GetMapping ( BASE_PATH + "/orders" )
     public List<Order> getOrders ( @RequestParam ( name = "status", required = false ) final String status ) {
-        final Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        if ( isAuthorized( a, User.CUSTOMER ) && !isAuthorized( a, User.STAFF ) ) {
+    	final Authentication a = SecurityContextHolder.getContext().getAuthentication();
+    	
+        if ( status != null && isAuthorized( a, User.CUSTOMER ) && !isAuthorized( a, User.STAFF ) && status.equals( "active" ) ) {
             return service.findByActiveAndUserName( true, a.getName() );
+        }
+    	
+        if ( isAuthorized( a, User.CUSTOMER ) && !isAuthorized( a, User.STAFF ) ) {
+            return service.findByUserName( a.getName() );
         }
 
         if ( !isAuthorized( a, User.STAFF ) ) {
@@ -123,7 +128,6 @@ public class APIOrderController extends APIController {
         else {
             return null;
         }
-
     }
 
     /**
@@ -203,8 +207,10 @@ public class APIOrderController extends APIController {
         if ( ord == null ) {
             return new ResponseEntity( HttpStatus.NOT_FOUND );
         }
+        
+        final List<Recipe> recipes = ord.getRecipes();
+        
         final Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        // if staff, set order to ready
         if ( isAuthorized( a, User.STAFF ) ) {
             if ( ord.isReady() ) {
                 return new ResponseEntity( errorResponse( "Order already Made" ), HttpStatus.BAD_REQUEST );
@@ -215,11 +221,15 @@ public class APIOrderController extends APIController {
 
             // Check if enough ingredients for each recipe
             final Inventory inventory = inventoryService.getInventory();
-            final List<Recipe> recipes = ord.getRecipes();
-            for ( final Recipe recipe : recipes ) {
-                if ( !inventory.useIngredients( recipe ) ) {
-                    return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
-                }
+            
+            // Check if enough ingredients
+            if ( !inventory.enoughIngredients( recipes ) ) {
+            	return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
+            }
+            
+            // Use Ingredients
+            if ( !inventory.useIngredients( recipes ) ) {
+                return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
             }
 
             // Update inventory
@@ -229,13 +239,35 @@ public class APIOrderController extends APIController {
             ord.setReady( true );
             service.save( ord );
             return new ResponseEntity( successResponse( Integer.toString( payment - ord.getTotal() ) ), HttpStatus.OK );
-        } // if customer/guest, the order is picked up
-        else {
-            ord.setActive( false );
-            service.save( ord );
-            return new ResponseEntity(
-                    successResponse( "Order number " + ord.getOrderNumber() + " has been picked up." ), HttpStatus.OK );
         }
+        
+        // Return error response
+        return new ResponseEntity( errorResponse( "Not authorized to make an order." ), HttpStatus.BAD_REQUEST );
+    }
+    
+    /*
+     * Users and guests pick up order through this endpoint.
+     * 
+     */
+    @PutMapping ( BASE_PATH + "/orders/{orderId}/pickup" )
+    public ResponseEntity pickupOrder ( @PathVariable ( "orderId" ) final Long orderId,
+            @RequestBody ( required = false ) final String username ) {
+
+    	// Check if order exists
+        final Order ord = service.findById( orderId );
+        if ( ord == null ) {
+            return new ResponseEntity( HttpStatus.NOT_FOUND );
+        }
+        
+        final Authentication a = SecurityContextHolder.getContext().getAuthentication(); 
+        if ( !isAuthorized( a, User.CUSTOMER ) ) {
+        	return new ResponseEntity( errorResponse( "Not authorized to make an order." ), HttpStatus.BAD_REQUEST );
+        }
+            
+        ord.setActive( false );
+        service.save( ord );
+        return new ResponseEntity(
+                successResponse( "Order number " + ord.getOrderNumber() + " has been picked up." ), HttpStatus.OK );
     }
 
     /**
@@ -254,21 +286,24 @@ public class APIOrderController extends APIController {
         final String username = SecurityContextHolder.getContext().getAuthentication().getName();
         order.setUserName( username );
         order.setTotal( 0 );
-        order.setGuest( username != null );
+        order.setGuest( username.equals( "anonymousUser" ) );
 
         for ( final Entry<String, Integer> e : items.entrySet() ) {
             final Recipe r = recipeService.findByName( e.getKey() );
             if ( r == null ) {
                 return new ResponseEntity( "Recipe not found", HttpStatus.BAD_REQUEST );
             }
+            
+            
             for ( int i = 0; i < e.getValue(); i++ ) {
-                order.addRecipe( r );
+            	order.addRecipe( r );
                 order.setTotal( order.getTotal() + r.getPrice() );
             }
         }
 
         int i = 0;
         order.assignOrderNumber( i );
+        
         // this is not a good solution at the moment
         while ( i < 1000 && service.findByOrderNumber( order.getOrderNumber() ) != null ) {
             order.assignOrderNumber( ++i );

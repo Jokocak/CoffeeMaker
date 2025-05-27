@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure ( final HttpSecurity http ) throws Exception {
 
         http.authorizeRequests()
-                .antMatchers( "/login", "/guesthome.html", "/register.html", "/order.html", "/orders/*", "/orders/",
+                .antMatchers( "/login", "/guesthome.html", "/register.html", "/customerorder.html", "/orders/*", "/orders/",
                         "/api/v1/users/customer", "/api/v1/recipes", "/api/v1/orders", "/orderstatus*",
                         "/api/v1/orders/*", "/privacypolicy.html" )
                 .permitAll() // Allow
