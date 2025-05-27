@@ -101,9 +101,9 @@
 		  </td>
           <td>${{ order.total }}</td>
           <td>
-            <span ng-if="order.readyForPickUp" class="green">Ready</span>
-            <span ng-if="!order.readyForPickUp && order.active" class="orange">In Progress</span>
-            <span ng-if="!order.readyForPickUp && !order.active" class="gray">Pending</span>
+            <span ng-if="!order.ready && order.active" class="gray">Order in Progress</span>
+            <span ng-if="order.ready && order.active" class="orange">Ready for Pickup</span>
+            <span ng-if="order.ready && !order.active" class="green">Fulfilled</span>
           </td>
         </tr>
       </tbody>

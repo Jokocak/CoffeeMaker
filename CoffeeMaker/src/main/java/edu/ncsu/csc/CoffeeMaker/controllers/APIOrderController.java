@@ -206,8 +206,8 @@ public class APIOrderController extends APIController {
         
         final List<Recipe> recipes = ord.getRecipes();
         
-//        final Authentication a = SecurityContextHolder.getContext().getAuthentication();
-//        if ( isAuthorized( a, User.STAFF ) ) {
+        final Authentication a = SecurityContextHolder.getContext().getAuthentication();
+        if ( isAuthorized( a, User.STAFF ) ) {
             if ( ord.isReady() ) {
                 return new ResponseEntity( errorResponse( "Order already Made" ), HttpStatus.BAD_REQUEST );
             }
@@ -219,17 +219,11 @@ public class APIOrderController extends APIController {
             final Inventory inventory = inventoryService.getInventory();
             
             // Check if enough ingredients
-//            if ( !inventory.enoughIngredients( ingredients ) ) {
-//            	return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
-//            }
             if ( !inventory.enoughIngredients( recipes ) ) {
             	return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
             }
             
             // Use Ingredients
-//            if ( !inventory.useIngredients( ingredients ) ) {
-//                return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
-//            }
             if ( !inventory.useIngredients( recipes ) ) {
                 return new ResponseEntity( errorResponse( "Insufficient Inventory" ), HttpStatus.BAD_GATEWAY );
             }
@@ -241,7 +235,10 @@ public class APIOrderController extends APIController {
             ord.setReady( true );
             service.save( ord );
             return new ResponseEntity( successResponse( Integer.toString( payment - ord.getTotal() ) ), HttpStatus.OK );
-//    }
+        }
+        
+        // Return error response
+        return new ResponseEntity( errorResponse( "Not authorized to make an order." ), HttpStatus.BAD_REQUEST );
     }
     
     /*
@@ -258,13 +255,9 @@ public class APIOrderController extends APIController {
             return new ResponseEntity( HttpStatus.NOT_FOUND );
         }
         
-//        final Authentication a = SecurityContextHolder.getContext().getAuthentication(); 
-//        if ( !isAuthorized( a, User.CUSTOMER ) ) {
-//        	
-//        }
-        
-        if ( ord.isReady() ) {
-            return new ResponseEntity( errorResponse( "Order already Made" ), HttpStatus.BAD_REQUEST );
+        final Authentication a = SecurityContextHolder.getContext().getAuthentication(); 
+        if ( !isAuthorized( a, User.CUSTOMER ) ) {
+        	return new ResponseEntity( errorResponse( "Not authorized to make an order." ), HttpStatus.BAD_REQUEST );
         }
             
         ord.setActive( false );
@@ -285,14 +278,11 @@ public class APIOrderController extends APIController {
      */
     @PostMapping ( BASE_PATH + "/orders" )
     public ResponseEntity createOrder ( @RequestBody final Map<String, Integer> items ) {
-//    public ResponseEntity createOrder ( @RequestBody final List<String> items ) {
         final Order order = new Order();
         final String username = SecurityContextHolder.getContext().getAuthentication().getName();
         order.setUserName( username );
         order.setTotal( 0 );
         order.setGuest( username.equals( "anonymousUser" ) );
-        
-//        List<Recipe> recipes = recipeService.findAll();
 
         for ( final Entry<String, Integer> e : items.entrySet() ) {
             final Recipe r = recipeService.findByName( e.getKey() );
@@ -303,13 +293,13 @@ public class APIOrderController extends APIController {
             
             for ( int i = 0; i < e.getValue(); i++ ) {
             	order.addRecipe( r );
-//                order.addRecipe( new Recipe( r ) );
                 order.setTotal( order.getTotal() + r.getPrice() );
             }
         }
 
         int i = 0;
         order.assignOrderNumber( i );
+        
         // this is not a good solution at the moment
         while ( i < 1000 && service.findByOrderNumber( order.getOrderNumber() ) != null ) {
             order.assignOrderNumber( ++i );
